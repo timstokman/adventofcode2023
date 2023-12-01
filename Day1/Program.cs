@@ -7,11 +7,6 @@ int GetCalibrationValue(string line)
     return digits.First().Value * 10 + digits.Last().Value;
 }
 
-int GetSumCalibrationValues(string input)
-    => input.Split(Environment.NewLine)
-            .Where(l => !string.IsNullOrWhiteSpace(l))
-            .Select(GetCalibrationValue).Sum();
-
 int GetRealCalibrationValue(string line)
 {
     Dictionary<string, int> mapping = new()
@@ -43,14 +38,9 @@ int GetRealCalibrationValue(string line)
     return digits.First() * 10 + digits.Last();
 }
 
-int GetSumRealCalibrationValues(string input)
-    => input.Split(Environment.NewLine)
-            .Where(l => !string.IsNullOrWhiteSpace(l))
-            .Select(GetRealCalibrationValue)
-            .Sum();
-
 string puzzleInput = await Util.GetPuzzleInput(1);
-int sumCalibrationValues = GetSumCalibrationValues(puzzleInput);
-int sumRealCalibrationValues = GetSumRealCalibrationValues(puzzleInput);
+IEnumerable<string> lines = puzzleInput.SplitInLines();
+int sumCalibrationValues = lines.Sum(GetCalibrationValue);
+int sumRealCalibrationValues = lines.Sum(GetRealCalibrationValue);
 Console.WriteLine($"Sum calibration values: {sumCalibrationValues}");
 Console.WriteLine($"Sum real calibration values: {sumRealCalibrationValues}");
