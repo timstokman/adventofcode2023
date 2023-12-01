@@ -1,14 +1,16 @@
-﻿using System.Text.RegularExpressions;
-using Common;
+﻿using Common;
 
 int GetCalibrationValue(string line)
 {
-    IEnumerable<int?> digits = line.Select(c => int.TryParse(c.ToString(), out int n) ? (int?)n : null).Where(d => d != null);
+    IEnumerable<int?> digits = line.Select(c => int.TryParse(c.ToString(), out int n) ? (int?)n : null)
+                                   .Where(d => d != null);
     return digits.First().Value * 10 + digits.Last().Value;
 }
 
 int GetSumCalibrationValues(string input)
-    => input.Split(Environment.NewLine).Where(l => !string.IsNullOrWhiteSpace(l)).Select(GetCalibrationValue).Sum();
+    => input.Split(Environment.NewLine)
+            .Where(l => !string.IsNullOrWhiteSpace(l))
+            .Select(GetCalibrationValue).Sum();
 
 int GetRealCalibrationValue(string line)
 {
@@ -34,14 +36,18 @@ int GetRealCalibrationValue(string line)
         { "8", 8 },
         { "9", 9 },
     };
-    Regex digitsRegex = new Regex($"(?={string.Join("|", mapping.Keys)})");
-    var matches = digitsRegex.Matches(line);
-    IEnumerable<int> digits = matches.Select(m => mapping.First(map => line[m.Index..].StartsWith(map.Key)).Value).ToList();
+    IEnumerable<int> digits = Enumerable.Range(0, line.Length)
+                                        .Select(i => mapping.Keys.FirstOrDefault(digit => line[i..].StartsWith(digit)))
+                                        .Where(digit => digit != null)
+                                        .Select(digit => mapping[digit]);
     return digits.First() * 10 + digits.Last();
 }
 
 int GetSumRealCalibrationValues(string input)
-    => input.Split(Environment.NewLine).Where(l => !string.IsNullOrWhiteSpace(l)).Select(GetRealCalibrationValue).Sum();
+    => input.Split(Environment.NewLine)
+            .Where(l => !string.IsNullOrWhiteSpace(l))
+            .Select(GetRealCalibrationValue)
+            .Sum();
 
 string puzzleInput = await Util.GetPuzzleInput(1);
 int sumCalibrationValues = GetSumCalibrationValues(puzzleInput);
