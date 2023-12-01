@@ -1,0 +1,21 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Day1", "Day1\Day1.csproj", "{B98EF7AF-05D9-4524-8B69-22935F34A959}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Files", "Files", "{1754B720-9072-4B6D-921F-34AB3D23E6D4}"
+	ProjectSection(SolutionItems) = preProject
+		.gitignore = .gitignore
+	EndProjectSection
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{B98EF7AF-05D9-4524-8B69-22935F34A959}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{B98EF7AF-05D9-4524-8B69-22935F34A959}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{B98EF7AF-05D9-4524-8B69-22935F34A959}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{B98EF7AF-05D9-4524-8B69-22935F34A959}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+EndGlobal
