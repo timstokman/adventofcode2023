@@ -39,7 +39,7 @@ int GetRealCalibrationValue(string line)
 }
 
 string puzzleInput = await Util.GetPuzzleInput(1);
-IEnumerable<string> lines = puzzleInput.SplitInLines();
+IEnumerable<string> lines = puzzleInput.Split(Environment.NewLine, StringSplitOptions.RemoveEmptyEntries);
 int sumCalibrationValues = lines.Sum(GetCalibrationValue);
 int sumRealCalibrationValues = lines.Sum(GetRealCalibrationValue);
 Console.WriteLine($"Sum calibration values: {sumCalibrationValues}");

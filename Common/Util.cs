@@ -10,7 +10,4 @@ public static class Util
         HttpResponseMessage result = await client.GetAsync($"https://adventofcode.com/2023/day/{day}/input");
         return await result.Content.ReadAsStringAsync();
     }
-
-    public static IEnumerable<string> SplitInLines(this string input, bool removeEmptyLines=true)
-        => input.Split(Environment.NewLine).Where(l => !removeEmptyLines || !string.IsNullOrWhiteSpace(l));
 }
