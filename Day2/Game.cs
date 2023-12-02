@@ -7,7 +7,7 @@ record Game(int Num, List<GameColors> Rounds)
         string[] split = line.Split(": ");
         int gameNum = int.Parse(split[0][5..].Trim());
         string[] roundSplit = split[1].Split("; ");
-        var rounds = roundSplit.Select(roundSpec =>
+        List<GameColors> rounds = roundSplit.Select(roundSpec =>
         {
             Dictionary<string, int> colorMap = roundSpec
                 .Split(", ")
@@ -17,8 +17,8 @@ record Game(int Num, List<GameColors> Rounds)
             colorMap.TryGetValue("green", out int green);
             colorMap.TryGetValue("blue", out int blue);
             return new GameColors(red, green, blue);
-        });
-        return new Game(gameNum, rounds.ToList());
+        }).ToList();
+        return new Game(gameNum, rounds);
     }
 
     public bool IsPossibleWith(GameColors totals)
