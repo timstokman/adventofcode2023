@@ -5,7 +5,7 @@ record Game(int Num, List<GameColors> Rounds)
     public static Game GameFromLine(string line)
     {
         string[] split = line.Split(": ");
-        int gameNum = int.Parse(split[0][5..].Trim());
+        int gameNum = int.Parse(split[0][5..]);
         string[] roundSplit = split[1].Split("; ");
         List<GameColors> rounds = roundSplit.Select(roundSpec =>
         {
