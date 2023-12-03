@@ -5,11 +5,7 @@ string puzzleInput = await Util.GetPuzzleInput(3);
 string[] puzzleLines = puzzleInput.Split(Environment.NewLine, StringSplitOptions.RemoveEmptyEntries);
 
 Regex numberMatch = new Regex(@"\d+");
-IEnumerable<(int lineIndex, Match match)> numberMatches = puzzleLines.SelectMany((line, lineIndex) =>
-{
-   var matches = numberMatch.Matches(line);
-   return matches.Select(m => (lineIndex, m));
-}).ToList();
+List<(int lineIndex, Match match)> numberMatches = puzzleLines.SelectMany((line, lineIndex) => numberMatch.Matches(line).Select(m => (lineIndex, m))).ToList();
 IEnumerable<int> partNumbers = numberMatches.Where(i =>
 {
    (int lineIndex, var match) = i;
@@ -32,11 +28,7 @@ int sumPartNumbers = partNumbers.Sum();
 
 
 Regex gearMatch = new Regex(@"\*");
-IEnumerable<(int lineIndex, Match match)> gearMatches = puzzleLines.SelectMany((line, lineIndex) =>
-{
-   var matches = gearMatch.Matches(line);
-   return matches.Select(m => (lineIndex, m));
-});
+IEnumerable<(int lineIndex, Match match)> gearMatches = puzzleLines.SelectMany((line, lineIndex) => gearMatch.Matches(line).Select(m => (lineIndex, m)));
 IEnumerable<int> gearRatios = gearMatches.Select(i =>
 {
    (int lineIndex, var match) = i;
