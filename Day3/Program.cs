@@ -52,10 +52,10 @@ IEnumerable<int> gearRatios = gearMatches.Select(i =>
       (lineIndex + 1, match.Index + match.Length)
    };
    var digitIndexes = indexesToCheck.Where(toCheck => toCheck.X >= 0 && toCheck.X < puzzleLines[0].Length && toCheck.Y >= 0 && toCheck.Y < puzzleLines.Length && char.IsDigit(puzzleLines[toCheck.Y][toCheck.X]));
-   var matchingDigits = digitIndexes.Select(matchingDigit => ((int lineIndex, Match m)?)numberMatches.FirstOrDefault(numberMatch => matchingDigit.X >= numberMatch.match.Index && matchingDigit.X < numberMatch.match.Index + numberMatch.match.Length && numberMatch.lineIndex == matchingDigit.Y)).Where(m => m != null).DistinctBy(item => (item.Value.lineIndex, item.Value.m.Index)).ToList();
+   List<(int lineIndex, Match match)?> matchingDigits = digitIndexes.Select(matchingDigit => ((int lineIndex, Match m)?)numberMatches.FirstOrDefault(numberMatch => matchingDigit.X >= numberMatch.match.Index && matchingDigit.X < numberMatch.match.Index + numberMatch.match.Length && numberMatch.lineIndex == matchingDigit.Y)).Where(m => m != null).DistinctBy(item => (item.Value.lineIndex, item.Value.m.Index)).ToList();
    if (matchingDigits.Count() == 2)
    {
-      return int.Parse(matchingDigits.First().Value.m.Value) * int.Parse(matchingDigits.Last().Value.m.Value);
+      return int.Parse(matchingDigits.First().Value.match.Value) * int.Parse(matchingDigits.Last().Value.match.Value);
    }
    else
    {
