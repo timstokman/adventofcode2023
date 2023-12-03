@@ -9,7 +9,7 @@ IEnumerable<(int lineIndex, Match match)> numberMatches = puzzleLines.SelectMany
 {
    var matches = numberMatch.Matches(line);
    return matches.Select(m => (lineIndex, m));
-});
+}).ToList();
 IEnumerable<int> partNumbers = numberMatches.Where(i =>
 {
    (int lineIndex, var match) = i;
@@ -29,6 +29,8 @@ IEnumerable<int> partNumbers = numberMatches.Where(i =>
    return symbolIndexes.Any();
 }).Select(num => int.Parse(num.match.Value));
 int sumPartNumbers = partNumbers.Sum();
+
+
 Regex gearMatch = new Regex(@"\*");
 IEnumerable<(int lineIndex, Match match)> gearMatches = puzzleLines.SelectMany((line, lineIndex) =>
 {
@@ -63,6 +65,7 @@ IEnumerable<int> gearRatios = gearMatches.Select(i =>
    }
 });
 int sumGearRatios = gearRatios.Sum();
+
 
 Console.WriteLine(sumPartNumbers);
 Console.WriteLine(sumGearRatios);
