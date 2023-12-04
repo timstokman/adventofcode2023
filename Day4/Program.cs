@@ -16,6 +16,7 @@ for (int cardNumber = 0; cardNumber < ownedScratchCards.Length; cardNumber++)
         ownedScratchCards[won] += ownedScratchCards[cardNumber];
     }
 }
+int numOwned = ownedScratchCards.Sum();
 
 Console.WriteLine($"Sum scores: {sumScore}");
-Console.WriteLine($"Owned scratch cards: {ownedScratchCards.Sum()}");
+Console.WriteLine($"Owned scratch cards: {numOwned}");
