@@ -1,6 +1,4 @@
-﻿// See https://aka.ms/new-console-template for more information
-
-using Common;
+﻿using Common;
 using Day2;
 
 string input = await Util.GetPuzzleInput(2);

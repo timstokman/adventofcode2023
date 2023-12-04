@@ -59,5 +59,5 @@ IEnumerable<int> gearRatios = gearMatches.Select(i =>
 int sumGearRatios = gearRatios.Sum();
 
 
-Console.WriteLine(sumPartNumbers);
-Console.WriteLine(sumGearRatios);
+Console.WriteLine($"Sum part numbers: {sumPartNumbers}");
+Console.WriteLine($"Sum gear ratios: {sumGearRatios}");
