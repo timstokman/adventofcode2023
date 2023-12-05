@@ -18,10 +18,9 @@ int[] OwnedScratchCards(List<Card> cards)
 }
 
 string puzzleInput = await Util.GetPuzzleInput(4);
-string[] puzzleLines = puzzleInput.Split(Environment.NewLine, StringSplitOptions.RemoveEmptyEntries);
-List<Card> cards = puzzleLines.Select(Card.FromLine).ToList();
-int sumScore = cards.Sum(c => c.Score);
+List<Card> cards = puzzleInput.Split(Environment.NewLine, StringSplitOptions.RemoveEmptyEntries).Select(Card.FromLine).ToList();
 
+int sumScore = cards.Sum(c => c.Score);
 int[] ownedScratchCards = OwnedScratchCards(cards);
 int numOwned = ownedScratchCards.Sum();
 
