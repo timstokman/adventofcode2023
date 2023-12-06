@@ -2,9 +2,10 @@
 
 long WaysToWin(long time, long minDistance)
 {
-    long minPressedStart = (long)Math.Floor(0.5 * (time - Math.Sqrt(time * time - 4 * minDistance)));
+    double sqrt = Math.Sqrt(time * time - 4 * minDistance);
+    long minPressedStart = (long)Math.Floor(0.5 * (time - sqrt));
     minPressedStart += (time - minPressedStart) * minPressedStart > minDistance ? 1 : 0;
-    long maxPressedStart = (long)Math.Floor(0.5 * (Math.Sqrt(time * time - 4 * minDistance) + time));
+    long maxPressedStart = (long)Math.Floor(0.5 * (sqrt + time));
     maxPressedStart += (time - maxPressedStart) * maxPressedStart > minDistance ? 0 : 1;
     return maxPressedStart - minPressedStart;
 }
