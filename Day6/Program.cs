@@ -3,23 +3,11 @@
 using System.Text.RegularExpressions;
 using Common;
 
-IEnumerable<long> LongRange(long start, long count) {
-    long end = start + count;
-    for (long current = start; current < end; current++)
-    {
-        yield return current;
-    }
-}
-
 int WaysToWin(long time, long minDistance)
 {
-    var isWinning = LongRange(0, time + 1).Select(timePressed =>
-    {
-        long speed = timePressed;
-        long moved = (time - timePressed) * speed;
-        return moved > minDistance;
-    });
-    return isWinning.Count(i => i);
+    double minPressedStart = Math.Ceiling(0.5 * (time - Math.Sqrt(time * time - 4 * minDistance)));
+    double maxPressedStart = Math.Ceiling(0.5 * (Math.Sqrt(time * time - 4 * minDistance) + time));
+    return (int)Math.Round(maxPressedStart - minPressedStart);
 }
 
 string puzzleInput = await Util.GetPuzzleInput(6);
@@ -27,7 +15,7 @@ string[] puzzleLines = puzzleInput.Split(Environment.NewLine, StringSplitOptions
 
 long[] times = new Regex(@"\s+").Split(puzzleLines[0]).Skip(1).Select(long.Parse).ToArray();
 long[] distances = new Regex(@"\s+").Split(puzzleLines[1]).Skip(1).Select(long.Parse).ToArray();
-int[] waysToWin = LongRange(0, times.Length).Select(i => WaysToWin(times[i], distances[i])).ToArray();
+int[] waysToWin = Enumerable.Range(0, times.Length).Select(i => WaysToWin(times[i], distances[i])).ToArray();
 long multWaysToWin = waysToWin.Aggregate(1, (l, r) => l * r);
 Console.WriteLine(multWaysToWin);
 
