@@ -15,7 +15,7 @@ string[] puzzleLines = puzzleInput.Split(Environment.NewLine, StringSplitOptions
 long[] times = puzzleLines[0].Split(" ", StringSplitOptions.RemoveEmptyEntries).Skip(1).Select(long.Parse).ToArray();
 long[] distances = puzzleLines[1].Split(" ", StringSplitOptions.RemoveEmptyEntries).Skip(1).Select(long.Parse).ToArray();
 long[] waysToWin = Enumerable.Range(0, times.Length).Select(i => WaysToWin(times[i], distances[i])).ToArray();
-long multWaysToWin = waysToWin.Aggregate(1l, (l, r) => l * r);
+long multWaysToWin = waysToWin.Aggregate(1L, (l, r) => l * r);
 Console.WriteLine(multWaysToWin);
 
 long realTime = long.Parse(puzzleLines[0].Replace(" ", "")[5..]);
