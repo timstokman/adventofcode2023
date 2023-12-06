@@ -1,7 +1,4 @@
-﻿// See https://aka.ms/new-console-template for more information
-
-using System.Text.RegularExpressions;
-using Common;
+﻿using Common;
 
 long WaysToWin(long time, long minDistance)
 {
@@ -15,8 +12,8 @@ long WaysToWin(long time, long minDistance)
 string puzzleInput = await Util.GetPuzzleInput(6);
 string[] puzzleLines = puzzleInput.Split(Environment.NewLine, StringSplitOptions.RemoveEmptyEntries);
 
-long[] times = new Regex(@"\s+").Split(puzzleLines[0]).Skip(1).Select(long.Parse).ToArray();
-long[] distances = new Regex(@"\s+").Split(puzzleLines[1]).Skip(1).Select(long.Parse).ToArray();
+long[] times = puzzleLines[0].Split(" ", StringSplitOptions.RemoveEmptyEntries).Skip(1).Select(long.Parse).ToArray();
+long[] distances = puzzleLines[1].Split(" ", StringSplitOptions.RemoveEmptyEntries).Skip(1).Select(long.Parse).ToArray();
 long[] waysToWin = Enumerable.Range(0, times.Length).Select(i => WaysToWin(times[i], distances[i])).ToArray();
 long multWaysToWin = waysToWin.Aggregate(1l, (l, r) => l * r);
 Console.WriteLine(multWaysToWin);
