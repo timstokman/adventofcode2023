@@ -4,10 +4,10 @@ long WaysToWin(long time, long minDistance)
 {
     double sqrt = Math.Sqrt(time * time - 4 * minDistance);
     long minPressedStart = (long)Math.Floor(0.5 * (time - sqrt));
-    minPressedStart += (time - minPressedStart) * minPressedStart > minDistance ? 1 : 0;
+    minPressedStart += (time - minPressedStart) * minPressedStart > minDistance ? 0 : 1;
     long maxPressedStart = (long)Math.Floor(0.5 * (sqrt + time));
-    maxPressedStart += (time - maxPressedStart) * maxPressedStart > minDistance ? 0 : 1;
-    return maxPressedStart - minPressedStart;
+    maxPressedStart += (time - maxPressedStart) * maxPressedStart > minDistance ? 1 : 0;
+    return Math.Max(0, maxPressedStart - minPressedStart);
 }
 
 string puzzleInput = await Util.GetPuzzleInput(6);
