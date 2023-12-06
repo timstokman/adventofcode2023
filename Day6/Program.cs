@@ -5,8 +5,10 @@ using Common;
 
 int WaysToWin(long time, long minDistance)
 {
-    double minPressedStart = Math.Ceiling(0.5 * (time - Math.Sqrt(time * time - 4 * minDistance)));
-    double maxPressedStart = Math.Ceiling(0.5 * (Math.Sqrt(time * time - 4 * minDistance) + time));
+    double minPressedStart = 0.5 * (time - Math.Sqrt(time * time - 4 * minDistance));
+    minPressedStart = minPressedStart - Math.Truncate(minPressedStart) == 0.0 ? Math.Round(minPressedStart) + 1 : Math.Ceiling(minPressedStart);
+    double maxPressedStart = 0.5 * (Math.Sqrt(time * time - 4 * minDistance) + time);
+    maxPressedStart = maxPressedStart - Math.Truncate(maxPressedStart) == 0.0 ? Math.Round(maxPressedStart) + 1 : Math.Ceiling(maxPressedStart);
     return (int)Math.Round(maxPressedStart - minPressedStart);
 }
 
