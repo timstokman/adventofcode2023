@@ -1,39 +1,52 @@
 namespace Day7;
 
-public record Round(char[] Hand, int Bid) : IComparable<Round>
+public record RoundWithJRules(char[] Hand, int Bid) : IComparable<RoundWithJRules>
 {
-    public static char[] CardStrength = { 'A', 'K', 'Q', 'J', 'T', '9', '8', '7', '6', '5', '4', '3', '2' };
+    public static char[] CardStrength = { 'A', 'K', 'Q', 'T', '9', '8', '7', '6', '5', '4', '3', '2', 'J' };
 
-    public static Round FromLine(string line)
+    public static RoundWithJRules FromLine(string line)
     {
         var split = line.Split(" ");
-        return new Round(split[0].ToCharArray(), int.Parse(split[1]));
+        return new RoundWithJRules(split[0].ToCharArray(), int.Parse(split[1]));
     }
 
     public Dictionary<char, int> Frequency { get; } = Hand.GroupBy(h => h).ToDictionary(h => h.Key, h => h.Count());
 
+    public Dictionary<char, int> FrequencyWithoutJ { get; } = Hand.Where(h => h != 'J').GroupBy(h => h).ToDictionary(h => h.Key, h => h.Count());
+
     public IEnumerable<int> FrequencySorted() => Frequency.Select(f => f.Value).OrderDescending();
 
+    public IEnumerable<int> FrequencySortedWithoutJ() => FrequencyWithoutJ.Select(f => f.Value).OrderDescending();
+    
+    public int NumJokers
+    {
+        get
+        {
+            Frequency.TryGetValue('J', out int j);
+            return j;
+        }
+    }
+
     public bool IsFiveOfAKind()
-        => Frequency.Count == 1;
+        => Frequency.Count == 1 || FrequencyWithoutJ.Count == 1;
 
     public bool IsFourOfAKind()
-        => FrequencySorted().First() == 4;
+        => FrequencySorted().First() == 4 || (FrequencyWithoutJ.Count == 2 && FrequencySortedWithoutJ().Last() == 1);
 
     public bool IsFullHouse()
-        => FrequencySorted().SequenceEqual(new[] { 3, 2 });
+        => !IsFourOfAKind() && FrequencyWithoutJ.Count == 2 && FrequencySortedWithoutJ().First() < 4;
 
     public bool IsThreeOfAKind()
-        => FrequencySorted().SequenceEqual(new[] { 3, 1, 1 });
+        => !IsFullHouse() && !IsFourOfAKind() && !IsFiveOfAKind() && FrequencySortedWithoutJ().First() + NumJokers == 3;
 
     public bool IsTwoPair()
-        => FrequencySorted().SequenceEqual(new[] { 2, 2, 1 });
+        => !IsFiveOfAKind() && !IsFourOfAKind() && !IsFullHouse() && !IsThreeOfAKind() && FrequencySortedWithoutJ().SequenceEqual(new[] { 2, 2, 1 });
 
     public bool IsOnePair()
-        => FrequencySorted().SequenceEqual(new[] { 2, 1, 1, 1 });
+        => FrequencySortedWithoutJ().First() + NumJokers == 2;
 
     public bool IsHighCard()
-        => Frequency.Count() == 5;
+        => Frequency.Count() == 5 && NumJokers == 0;
 
     public int Type()
     {
@@ -71,7 +84,7 @@ public record Round(char[] Hand, int Bid) : IComparable<Round>
         }
     }
 
-    public int CompareTo(Round? other)
+    public int CompareTo(RoundWithJRules? other)
     {
         if (other == null)
         {
