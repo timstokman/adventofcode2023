@@ -12,13 +12,32 @@ public record Round(char[] Hand, int Bid) : IComparable<Round>
 
     public Dictionary<char, int> Frequency { get; } = Hand.GroupBy(h => h).ToDictionary(h => h.Key, h => h.Count());
 
+    public Dictionary<char, int> FrequencyWithoutJ { get; } = Hand.Where(h => h != 'J').GroupBy(h => h).ToDictionary(h => h.Key, h => h.Count());
+
     public IEnumerable<int> FrequencySorted() => Frequency.Select(f => f.Value).OrderDescending();
+
+    public IEnumerable<int> FrequencySortedWithoutJ() => FrequencyWithoutJ.Select(f => f.Value).OrderDescending();
     
+    public int NumJokers
+    {
+        get
+        {
+            Frequency.TryGetValue('J', out int j);
+            return j;
+        }
+    }
+
     public bool IsFiveOfAKind()
-        => FrequencySorted().First() == 5;
+        => Frequency.Count == 1;
+
+    public bool IsFiveOfAKindJRules()
+        => FrequencyWithoutJ.Count == 1;
 
     public bool IsFourOfAKind()
         => FrequencySorted().First() == 4;
+
+    public bool IsFourOfAKindJRules()
+        => IsFourOfAKind() || FrequencyWithoutJ.Count == 2;
 
     public bool IsFullHouse()
         => FrequencySorted().SequenceEqual(new[] { 3, 2 });
