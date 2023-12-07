@@ -44,9 +44,6 @@ public sealed class Round : IComparable<Round>
     public bool IsOnePair()
         => FrequencySorted.SequenceEqual(new[] { 2, 1, 1, 1 });
 
-    public bool IsHighCard()
-        => Frequency.Count() == 5;
-
     public int Type()
     {
         if (IsFiveOfAKind())
@@ -73,13 +70,9 @@ public sealed class Round : IComparable<Round>
         {
             return 1;
         }
-        else if (IsHighCard())
-        {
-            return 0;
-        }
         else
         {
-            throw new Exception("What?");
+            return 0;
         }
     }
 
@@ -91,22 +84,6 @@ public sealed class Round : IComparable<Round>
         }
 
         int typeDiff = Type() - other.Type();
-        if (typeDiff != 0)
-        {
-            return typeDiff;
-        }
-        else
-        {
-            for (int i = 0; i < Hand.Length; i++)
-            {
-                int cardDiff =  Array.IndexOf(CardStrength, other.Hand[i]) - Array.IndexOf(CardStrength, Hand[i]);
-                if (cardDiff != 0)
-                {
-                    return cardDiff;
-                }
-            }
-
-            return 0;
-        }
+        return typeDiff != 0 ? typeDiff : Enumerable.Range(0, Hand.Length).Select(i => Array.IndexOf(CardStrength, other.Hand[i]) - Array.IndexOf(CardStrength, Hand[i])).FirstOrDefault(diff => diff != 0);
     }
 }

@@ -59,9 +59,6 @@ public sealed class RoundWithJRules : IComparable<RoundWithJRules>
     public bool IsOnePair()
         => FrequencySortedWithoutJ.First() + NumJokers == 2;
 
-    public bool IsHighCard()
-        => Frequency.Count() == 5;
-
     public int Type()
     {
         if (IsFiveOfAKind())
@@ -88,13 +85,9 @@ public sealed class RoundWithJRules : IComparable<RoundWithJRules>
         {
             return 1;
         }
-        else if (IsHighCard())
-        {
-            return 0;
-        }
         else
         {
-            throw new Exception("What?");
+            return 0;
         }
     }
 
@@ -106,22 +99,6 @@ public sealed class RoundWithJRules : IComparable<RoundWithJRules>
         }
 
         int typeDiff = Type() - other.Type();
-        if (typeDiff != 0)
-        {
-            return typeDiff;
-        }
-        else
-        {
-            for (int i = 0; i < Hand.Length; i++)
-            {
-                int cardDiff =  Array.IndexOf(CardStrength, other.Hand[i]) - Array.IndexOf(CardStrength, Hand[i]);
-                if (cardDiff != 0)
-                {
-                    return cardDiff;
-                }
-            }
-
-            return 0;
-        }
+        return typeDiff != 0 ? typeDiff : Enumerable.Range(0, Hand.Length).Select(i => Array.IndexOf(CardStrength, other.Hand[i]) - Array.IndexOf(CardStrength, Hand[i])).FirstOrDefault(diff => diff != 0);
     }
 }

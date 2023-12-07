@@ -1,13 +1,19 @@
 ﻿using Common;
 using Day7;
-using Microsoft.VisualBasic.CompilerServices;
 
 string puzzle = await Util.GetPuzzleInput(7);
-var rounds = puzzle.Split(Environment.NewLine, StringSplitOptions.RemoveEmptyEntries).Select(Round.FromLine).ToList();
-rounds.Sort();
-int winnings = rounds.Select((round, i) => (i + 1) * round.Bid).Sum();
+string[] puzzleLines = puzzle.Split(Environment.NewLine, StringSplitOptions.RemoveEmptyEntries);
+
+int winnings = puzzleLines
+    .Select(Round.FromLine)
+    .OrderBy(r => r)
+    .Select((round, i) => (i + 1) * round.Bid)
+    .Sum();
 Console.WriteLine($"Winnings: {winnings}");
-var roundsWithJRules = puzzle.Split(Environment.NewLine, StringSplitOptions.RemoveEmptyEntries).Select(RoundWithJRules.FromLine).ToList();
-roundsWithJRules.Sort();
-int winningsWithJRules = roundsWithJRules.Select((round, i) => (i + 1) * round.Bid).Sum();
+
+int winningsWithJRules = puzzleLines
+    .Select(RoundWithJRules.FromLine)
+    .OrderBy(r => r)
+    .Select((round, i) => (i + 1) * round.Bid)
+    .Sum();
 Console.WriteLine($"Winnings with joker rules: {winningsWithJRules}");
