@@ -10,8 +10,8 @@ public sealed class RoundWithJRules : IComparable<RoundWithJRules>
         Bid = bid;
         Frequency = Hand.GroupBy(h => h).ToDictionary(h => h.Key, h => h.Count());
         FrequencyWithoutJ = Hand.Where(h => h != 'J').GroupBy(h => h).ToDictionary(h => h.Key, h => h.Count());
-        FrequencySorted = Frequency.Select(f => f.Value).OrderDescending();
-        FrequencySortedWithoutJ = FrequencyWithoutJ.Select(f => f.Value).OrderDescending();
+        FrequencySorted = Frequency.Values.OrderDescending();
+        FrequencySortedWithoutJ = FrequencyWithoutJ.Values.OrderDescending();
     }
 
     public int Bid { get; set; }

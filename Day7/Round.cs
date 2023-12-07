@@ -9,7 +9,7 @@ public sealed class Round : IComparable<Round>
         Hand = hand;
         Bid = bid;
         Frequency = Hand.GroupBy(h => h).ToDictionary(h => h.Key, h => h.Count());
-        FrequencySorted = Frequency.Select(f => f.Value).OrderDescending();
+        FrequencySorted = Frequency.Values.OrderDescending();
     }
 
     public char[] Hand { get; set; }
