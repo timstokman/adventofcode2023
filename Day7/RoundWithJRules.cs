@@ -20,7 +20,7 @@ public sealed class RoundWithJRules : IComparable<RoundWithJRules>
 
     public static RoundWithJRules FromLine(string line)
     {
-        var split = line.Split(" ");
+        string[] split = line.Split(" ");
         return new RoundWithJRules(split[0].ToCharArray(), int.Parse(split[1]));
     }
 

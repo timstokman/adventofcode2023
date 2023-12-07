@@ -22,7 +22,7 @@ public sealed class Round : IComparable<Round>
 
     public static Round FromLine(string line)
     {
-        var split = line.Split(" ");
+        string[] split = line.Split(" ");
         return new Round(split[0].ToCharArray(), int.Parse(split[1]));
     }
 
