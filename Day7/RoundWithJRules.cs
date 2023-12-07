@@ -42,10 +42,10 @@ public sealed class RoundWithJRules : IComparable<RoundWithJRules>
     }
 
     public bool IsFiveOfAKind()
-        => Frequency.Count == 1 || FrequencyWithoutJ.Count == 1;
+        => FrequencyWithoutJ.Count <= 1;
 
     public bool IsFourOfAKind()
-        => FrequencySorted.First() == 4 || (FrequencyWithoutJ.Count == 2 && FrequencySortedWithoutJ.Last() == 1);
+        => FrequencyWithoutJ.Count == 2 && FrequencySortedWithoutJ.Last() == 1;
 
     public bool IsFullHouse()
         => !IsFourOfAKind() && FrequencyWithoutJ.Count == 2 && FrequencySortedWithoutJ.First() < 4;
@@ -60,7 +60,7 @@ public sealed class RoundWithJRules : IComparable<RoundWithJRules>
         => FrequencySortedWithoutJ.First() + NumJokers == 2;
 
     public bool IsHighCard()
-        => Frequency.Count() == 5 && NumJokers == 0;
+        => Frequency.Count() == 5;
 
     public int Type()
     {
