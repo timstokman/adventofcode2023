@@ -13,11 +13,9 @@ int StepsNeeded(string instructions, Dictionary<string, (string Left, string Rig
         steps++;
         if (current == endNode)
         {
-            break;
+            return steps;
         }
     }
-
-    return steps;
 }
 
 int LoopLength(string instructions, Dictionary<string, (string Left, string Right)> nodes, string startNode, char endLetter)
