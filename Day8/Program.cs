@@ -8,7 +8,7 @@ int StepsNeeded(string instructions, Dictionary<string, (string Left, string Rig
     while (true)
     {
         char step = instructions[steps % instructions.Length];
-        var node = nodes[current];
+        (string Left, string Right) node = nodes[current];
         current = step == 'L' ? node.Left : node.Right;
         steps++;
         if (current == endNode)
@@ -20,7 +20,7 @@ int StepsNeeded(string instructions, Dictionary<string, (string Left, string Rig
     return steps;
 }
 
-int LoopLength(string instructions, Dictionary<string, (string Left, string Right)> nodes, string startNode)
+int LoopLength(string instructions, Dictionary<string, (string Left, string Right)> nodes, string startNode, char endLetter)
 {
     int steps = 0;
     string current = startNode;
@@ -29,14 +29,14 @@ int LoopLength(string instructions, Dictionary<string, (string Left, string Righ
     while (true)
     {
         char step = instructions[steps % instructions.Length];
-        var node = nodes[current];
+        (string Left, string Right) node = nodes[current];
         current = step == 'L' ? node.Left : node.Right;
         steps++;
         if (reachedNodes.Contains((current, steps % instructions.Length)))
         {
             int startLoop = reachedNodes.IndexOf((current, steps % instructions.Length));
             int lengthLoop = reachedNodes.Count - startLoop;
-            int endIndex = reachedNodes.Select((n, i) => (n, i)).First(n => n.n.Node.EndsWith("Z")).i;
+            int endIndex = reachedNodes.IndexOf(reachedNodes.First(r => r.Node.EndsWith(endLetter)));
             if (lengthLoop != endIndex)
             {
                 throw new Exception("This would be difficult to solve :/");
@@ -71,8 +71,8 @@ string[] puzzleLines = puzzleInput.Split(Environment.NewLine, StringSplitOptions
 string instructions = puzzleLines[0];
 Dictionary<string, (string Left, string Right)> nodes = puzzleLines[1..].ToDictionary(line => line[0..3], line => (line[7..10], line[12..15]));
 int stepsNeeded = StepsNeeded(instructions, nodes, "AAA", "ZZZ");
-Console.WriteLine(stepsNeeded);
+Console.WriteLine($"Steps needed: {stepsNeeded}");
 string[] startNodes = nodes.Keys.Where(n => n.EndsWith("A")).ToArray();
-var loops = startNodes.Select(startNode => LoopLength(instructions, nodes, startNode)).ToArray();
+int[] loops = startNodes.Select(startNode => LoopLength(instructions, nodes, startNode, 'Z')).ToArray();
 long stepsNeededGhost = loops.Aggregate(1L, (l, r) => Lcm(l, r));
-Console.WriteLine(stepsNeededGhost);
+Console.WriteLine($"Steps needed ghost: {stepsNeededGhost}");
