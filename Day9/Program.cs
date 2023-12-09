@@ -14,12 +14,7 @@ IEnumerable<int[]> Diffs(int[] series)
 
 int NextValue(int[] series)
 {
-    int lastValue = 0;
-    foreach (int[] diff in Diffs(series).Reverse().Skip(1))
-    {
-        lastValue += diff.Last();
-    }
-    return lastValue;
+    return Diffs(series).Reverse().Skip(1).Select(diff => diff.Last()).Sum();
 }
 
 string puzzleInput = await Util.GetPuzzleInput(9);
