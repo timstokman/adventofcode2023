@@ -71,6 +71,6 @@ Dictionary<string, (string Left, string Right)> nodes = puzzleLines[1..].ToDicti
 int stepsNeeded = StepsNeeded(instructions, nodes, "AAA", "ZZZ");
 Console.WriteLine($"Steps needed: {stepsNeeded}");
 string[] startNodes = nodes.Keys.Where(n => n.EndsWith("A")).ToArray();
-int[] loops = startNodes.Select(startNode => LoopLength(instructions, nodes, startNode, 'Z')).ToArray();
-long stepsNeededGhost = loops.Aggregate(1L, (l, r) => Lcm(l, r));
+long[] loops = startNodes.Select(startNode => (long)LoopLength(instructions, nodes, startNode, 'Z')).ToArray();
+long stepsNeededGhost = loops.Aggregate(1L, Lcm);
 Console.WriteLine($"Steps needed ghost: {stepsNeededGhost}");
