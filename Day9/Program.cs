@@ -22,16 +22,6 @@ int NextValue(int[] series)
     return lastValue;
 }
 
-int PreviousValue(int[] series)
-{
-    int previousValue = 0;
-    foreach (int[] diff in Diffs(series).Reverse().Skip(1))
-    {
-        previousValue = diff.First() - previousValue;
-    }
-    return previousValue;
-}
-
 string puzzleInput = await Util.GetPuzzleInput(9);
 int[][] series = puzzleInput
     .Split(Environment.NewLine, StringSplitOptions.RemoveEmptyEntries)
@@ -39,5 +29,5 @@ int[][] series = puzzleInput
     .ToArray();
 int sumNextValues = series.Select(NextValue).Sum();
 Console.WriteLine($"Sum next values: {sumNextValues}");
-int sumPreviousValues = series.Select(PreviousValue).Sum();
+int sumPreviousValues = series.Select(s => s.Reverse().ToArray()).Select(NextValue).Sum();
 Console.WriteLine($"Sum previous values: {sumPreviousValues}");
