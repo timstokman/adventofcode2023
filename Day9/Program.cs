@@ -33,8 +33,10 @@ int PreviousValue(int[] series)
 }
 
 string puzzleInput = await Util.GetPuzzleInput(9);
-string[] puzzleLines = puzzleInput.Split(Environment.NewLine, StringSplitOptions.RemoveEmptyEntries);
-int[][] series = puzzleLines.Select(line => line.Split(" ", StringSplitOptions.RemoveEmptyEntries).Select(int.Parse).ToArray()).ToArray();
+int[][] series = puzzleInput
+    .Split(Environment.NewLine, StringSplitOptions.RemoveEmptyEntries)
+    .Select(line => line.Split(" ", StringSplitOptions.RemoveEmptyEntries).Select(int.Parse).ToArray())
+    .ToArray();
 int sumNextValues = series.Select(NextValue).Sum();
 Console.WriteLine($"Sum next values: {sumNextValues}");
 int sumPreviousValues = series.Select(PreviousValue).Sum();
