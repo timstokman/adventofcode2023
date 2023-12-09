@@ -15,12 +15,15 @@ IEnumerable<int[]> Diffs(int[] series)
 int NextValue(int[] series)
     => Diffs(series).Sum(diff => diff.Last());
 
+int PreviousValue(int[] series)
+    => NextValue(series.Reverse().ToArray());
+
 string puzzleInput = await Util.GetPuzzleInput(9);
 int[][] series = puzzleInput
     .Split(Environment.NewLine, StringSplitOptions.RemoveEmptyEntries)
     .Select(line => line.Split(" ", StringSplitOptions.RemoveEmptyEntries).Select(int.Parse).ToArray())
     .ToArray();
-int sumNextValues = series.Select(NextValue).Sum();
+int sumNextValues = series.Sum(NextValue);
 Console.WriteLine($"Sum next values: {sumNextValues}");
-int sumPreviousValues = series.Select(s => s.Reverse().ToArray()).Select(NextValue).Sum();
+int sumPreviousValues = series.Sum(PreviousValue);
 Console.WriteLine($"Sum previous values: {sumPreviousValues}");
