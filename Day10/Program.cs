@@ -14,6 +14,18 @@ Dictionary<char, Position[]> connectors = new()
     { 'S', sides },
 };
 
+Dictionary<char, char> unicodeMap = new()
+{
+    { '-', '─'      },
+    { '|', '│'      },
+    { 'F', '┌'      },
+    { '7', '┐'      },
+    { 'L', '└'      },
+    { 'J', '┘'      },
+    { '.', ' '      },
+    { 'S', '\u2666' }
+};
+
 Direction TurnDirection(bool turningClockwise, Direction direction)
     => (Direction)Mod((int)(turningClockwise ? direction + 1 : direction - 1), 4);
 
@@ -172,5 +184,5 @@ HashSet<Position> insideLoop = InsideNodes(map, largestLoop);
 Console.WriteLine($"Maximum distance beast: {largestLoop.Length / 2}");
 Console.WriteLine($"Area inside loop: {insideLoop.Count}");
 HashSet<Position> loopSet = new(largestLoop);
-string printRepresentation = string.Join(Environment.NewLine, map.Select((mapRow, y) => string.Join("", mapRow.Select((item, x) => loopSet.Contains((x, y)) ? 'L' : insideLoop.Contains((x, y)) ? 'I' : 'O'))));
+string printRepresentation = string.Join(Environment.NewLine, map.Select((mapRow, y) => string.Join("", mapRow.Select((item, x) => loopSet.Contains((x, y)) ? unicodeMap[map[y][x]] : insideLoop.Contains((x, y)) ? '\u25c7' : 'O'))));
 Console.WriteLine(printRepresentation);
