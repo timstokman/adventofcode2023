@@ -48,7 +48,7 @@ void PrintInside(char[][] map, HashSet<Position> loop, HashSet<Position> inside)
     }
 }
 
-Position[] Sides = { (0, -1), (0, 1), (-1, 0), (1, 0) };
+Position[] sides = { (0, -1), (0, 1), (-1, 0), (1, 0) };
 
 Dictionary<char, Position[]> connectors = new()
 {
@@ -58,7 +58,7 @@ Dictionary<char, Position[]> connectors = new()
     { 'J', new []{ (0, -1), (-1, 0) }},
     { 'F', new []{ (0, 1), (1, 0) }},
     { '7', new []{ (0, 1), (-1, 0) }},
-    { 'S', Sides },
+    { 'S', sides },
 };
 
 Direction TurnDirection(bool turningClockwise, Direction direction)
@@ -204,7 +204,7 @@ HashSet<Position> InsideNodes(char[][] map, Position[] loop)
             if (searchItem.X >= 0 && searchItem.Y >= 0 && searchItem.X < map[0].Length && searchItem.Y < map.Length && !loopSet.Contains(searchItem) && !insideSet.Contains(searchItem))
             {
                 insideSet.Add(searchItem);
-                foreach (Position side in Sides)
+                foreach (Position side in sides)
                 {
                     toSearch.Enqueue((searchItem.X + side.X, searchItem.Y + side.Y));
                 }
