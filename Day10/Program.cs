@@ -1,53 +1,6 @@
 ﻿using Common;
 using Position = (int X, int Y);
 
-void PrintLoop(char[][] map, Position[] loop)
-{
-    HashSet<Position> loopSet = new(loop);
-    Console.WriteLine("Loop:");
-    for (int y = 0; y < map.Length; y++)
-    {
-        for (int x = 0; x < map[0].Length; x++)
-        {
-            if (loopSet.Contains((x, y)))
-            {
-                Console.Write("L");
-            }
-            else
-            {
-                Console.Write(".");
-            }
-        }
-
-        Console.WriteLine();
-    }
-}
-
-void PrintInside(char[][] map, HashSet<Position> loop, HashSet<Position> inside)
-{
-    Console.WriteLine("Fill:");
-    for (int y = 0; y < map.Length; y++)
-    {
-        for (int x = 0; x < map[0].Length; x++)
-        {
-            if (loop.Contains((x, y)))
-            {
-                Console.Write("L");
-            }
-            else if (inside.Contains((x, y)))
-            {
-                Console.Write("I");
-            }
-            else
-            {
-                Console.Write("O");
-            }
-        }
-
-        Console.WriteLine();
-    }
-}
-
 Position[] sides = { (0, -1), (0, 1), (-1, 0), (1, 0) };
 
 Dictionary<char, Position[]> connectors = new()
@@ -218,5 +171,6 @@ Position[] largestLoop = FindLargestConnectingLoop(map);
 HashSet<Position> insideLoop = InsideNodes(map, largestLoop);
 Console.WriteLine($"Maximum distance beast: {largestLoop.Length / 2}");
 Console.WriteLine($"Area inside loop: {insideLoop.Count}");
-PrintLoop(map, largestLoop);
-PrintInside(map, new HashSet<Position> (largestLoop), insideLoop);
+HashSet<Position> loopSet = new(largestLoop);
+string printRepresentation = string.Join(Environment.NewLine, map.Select((mapRow, y) => string.Join("", mapRow.Select((item, x) => loopSet.Contains((x, y)) ? 'L' : insideLoop.Contains((x, y)) ? 'I' : 'O'))));
+Console.WriteLine(printRepresentation);
