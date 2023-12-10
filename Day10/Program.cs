@@ -191,10 +191,10 @@ HashSet<(int X, int Y)> InsideNodes(char[][] map, (int X, int Y)[] loop)
         (int X, int Y) next = loop[Mod(loopStartIndex + i + 1, loop.Length)];
         bool turning = Math.Abs(previous.X - next.X) != 2 && Math.Abs(previous.Y - next.Y) != 2;
         bool turningClockwise = turning && IsTurningClockwise(item, previous, next);
-        Direction newDirection = turning ? TurnDirection(turningClockwise, insideLoop) : insideLoop;
+        Direction newDirectionInside = turning ? TurnDirection(turningClockwise, insideLoop) : insideLoop;
         
         // "Flood" inside section
-        Queue<(int X, int Y)> toSearch = new(new[] { MoveDirection(insideLoop, item), MoveDirection(newDirection, item) });
+        Queue<(int X, int Y)> toSearch = new(new[] { MoveDirection(insideLoop, item), MoveDirection(newDirectionInside, item) });
 
         while (toSearch.Any())
         {
@@ -209,7 +209,7 @@ HashSet<(int X, int Y)> InsideNodes(char[][] map, (int X, int Y)[] loop)
             }
         }
 
-        insideLoop = newDirection;
+        insideLoop = newDirectionInside;
     }
 
     return insideSet;
