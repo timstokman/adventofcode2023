@@ -1,5 +1,5 @@
-﻿using Common;
-using Microsoft.VisualBasic.CompilerServices;
+﻿using System.Collections;
+using Common;
 
 Dictionary<char, (int X, int Y)[]> connectors = new()
 {
@@ -100,51 +100,87 @@ IEnumerable<(int X, int Y)> GetLoop(char[][] map, (int X, int Y) start, (int X, 
     return loops.First(l => l.Count() == maxLength).Take(maxLength - 1).ToArray();
 }
 
+int Mod(int x, int m) {
+    int r = x%m;
+    return r<0 ? r+m : r;
+}
+
 int CountInsideLoop(char[][] map, (int X, int Y)[] loop)
 {
     HashSet<(int X, int Y)> loopSet = new(loop);
-    Queue<(int X, int Y)> toSearch = new();
+    HashSet<(int X, int Y)> insideSet = new();
+
+    // Dumb way to find start point
+    int startY = 0;
+    int startX;
+    for (startX = 0; startX < map[0].Length; startX++)
+    {
+        for (startY = 0; startY < map.Length; startY++)
+        {
+            if (map[startY][startX] == '|' && loopSet.Contains((startX, startY)))
+            {
+                goto GETOUT;
+            }
+        }
+    }
+    
+    GETOUT:
 
     (int X, int Y)[] Sides = { (-1, 0), (1, 0), (0, 1), (0, -1) };
 
-    for (int x = 0; x < map[0].Length; x++)
+    int loopStartIndex = Array.IndexOf(loop, (startX, startY));
+    Direction insideLoop = Direction.Right;
+    for (int i = 0; i < loop.Length; i++)
     {
-        foreach (int y in new[] { 0, map.Length - 1 })
+        var item = loop[Mod(loopStartIndex + i, loop.Length)];
+        var previous = loop[Mod(loopStartIndex + i - 1, loop.Length)];
+        var next = loop[Mod(loopStartIndex + i + 1, loop.Length)];
+        bool turning = Math.Abs(previous.X - next.X) != 2 && Math.Abs(previous.Y - next.Y) != 2;
+        bool turningClockwise =
+            turning &&
+            (
+                (item.X - previous.X == 1 && item.Y - previous.Y == 0 && next.X - item.X == 0 && next.Y - item.Y == 1) ||
+                (item.X - previous.X == 0 && item.Y - previous.Y == 1 && next.X - item.X == -1 && next.Y - item.Y == 0) ||
+                (item.X - previous.X == -1 && item.Y - previous.Y == 0 && next.X - item.X == 0 && next.Y - item.Y == -1) ||
+                (item.X - previous.X == 0 && item.Y - previous.Y == -1 && next.X - item.X == 1 && next.Y - item.Y == 0)
+            );
+        bool turningCounterclockwise = turning && !turningClockwise;
+        var newDirection = turning ? (Direction)Mod((int)(turningClockwise ? insideLoop + 1 : insideLoop - 1), 4) : insideLoop;
+        
+        // "Flood" inside section
+        var startFlood = insideLoop switch
         {
-            if (!loopSet.Contains((x, y)))
-            {
-                toSearch.Enqueue((x, y));
-            }
-        }
-    }
+            Direction.Left => (item.X - 1, item.Y),
+            Direction.Top => (item.X, item.Y - 1),
+            Direction.Right => (item.X + 1, item.Y),
+            Direction.Bottom => (item.X, item.Y + 1),
+            _ => throw new ArgumentOutOfRangeException()
+        };
+        var otherStartFlood = newDirection switch
+        {
+            Direction.Left => (item.X - 1, item.Y),
+            Direction.Top => (item.X, item.Y - 1),
+            Direction.Right => (item.X + 1, item.Y),
+            Direction.Bottom => (item.X, item.Y + 1),
+            _ => throw new ArgumentOutOfRangeException()
+        };
 
-    for (int y = 0; y < map.Length; y++)
-    {
-        foreach (int x in new[] { 0, map[0].Length - 1 })
-        {
-            if (!loopSet.Contains((x, y)))
-            {
-                toSearch.Enqueue((x, y));
-            }
-        }
-    }
+        var toSearch = new Queue<(int X, int Y)>(new[] { startFlood, otherStartFlood });
 
-    var outsideLoop = new HashSet<(int X, int Y)>();
-    while (toSearch.Any())
-    {
-        var toCheck = toSearch.Dequeue();
-        if (!loopSet.Contains(toCheck))
+        while (toSearch.Any())
         {
-            outsideLoop.Add(toCheck);
-            foreach (var side in Sides)
+            var searchItem = toSearch.Dequeue();
+            if (searchItem.X >= 0 && searchItem.Y >= 0 && searchItem.X < map[0].Length && searchItem.Y < map.Length && !loopSet.Contains(searchItem) && !insideSet.Contains(searchItem))
             {
-                var neighbour = (X: toCheck.X + side.X, Y: toCheck.Y + side.Y);
-                if (neighbour.X >= 0 && neighbour.X < map[0].Length && neighbour.Y >= 0 && neighbour.Y < map.Length && !outsideLoop.Contains(neighbour))
+                insideSet.Add(searchItem);
+                foreach (var side in Sides)
                 {
-                    toSearch.Enqueue(neighbour);
+                    toSearch.Enqueue((searchItem.X + side.X, searchItem.Y + side.Y));
                 }
             }
         }
+
+        insideLoop = newDirection;
     }
 
     for (int y = 0; y < map.Length; y++)
@@ -153,22 +189,22 @@ int CountInsideLoop(char[][] map, (int X, int Y)[] loop)
         {
             if (loopSet.Contains((x, y)))
             {
-                Console.Write("X");
+                Console.Write("L");
             }
-            else if (outsideLoop.Contains((x, y)))
+            else if (insideSet.Contains((x, y)))
             {
-                Console.Write("O");
+                Console.Write("I");
             }
             else
             {
-                Console.Write("I");
+                Console.Write("O");
             }
         }
 
         Console.WriteLine();
     }
 
-    return (map.Length * map[0].Length) - loop.Length - outsideLoop.Count;
+    return insideSet.Count;
 }
 
 string puzzleInput = await Util.GetPuzzleInput(10);
