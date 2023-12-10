@@ -12,6 +12,27 @@ Dictionary<char, (int X, int Y)[]> connectors = new()
     { 'S', new[] { (0, -1), (0, 1), (-1, 0), (1, 0) }},
 };
 
+void PrintLoop(char[][] map, (int X, int Y)[] loop)
+{
+    HashSet<(int X, int Y)> loopSet = new(loop);
+    for (int y = 0; y < map.Length; y++)
+    {
+        for (int x = 0; x < map[0].Length; x++)
+        {
+            if (loopSet.Contains((x, y)))
+            {
+                Console.Write("X");
+            }
+            else
+            {
+                Console.Write(".");
+            }
+        }
+
+        Console.WriteLine();
+    }
+}
+
 (int X, int Y)[] GetConnectingPipes(char[][] map, (int x, int y) position)
 {
     if (connectors.TryGetValue(map[position.y][position.x], out var connections))
@@ -19,7 +40,7 @@ Dictionary<char, (int X, int Y)[]> connectors = new()
         return connections.Where(connection =>
         {
             (int netX, int netY) = (position.x + connection.X, position.y + connection.Y);
-            if (netX >= map.Length || netX < 0 || netY >= map.Length || netY < 0)
+            if (netX >= map[0].Length || netX < 0 || netY >= map.Length || netY < 0)
             {
                 return false;
             }
@@ -73,7 +94,8 @@ IEnumerable<(int X, int Y)> GetLoop(char[][] map, (int X, int Y) start, (int X, 
         }
     }
 
-    (int X, int Y)[][] loops = GetConnectingPipes(map, (startX, startY)).Select(connection => GetLoop(map, (startX, startY), (connection.X, connection.Y)).ToArray()).Where(l => l.Last() == (startX, startY)).ToArray();
+    (int X, int Y)[][] loops = GetConnectingPipes(map, (startX, startY)).Select(connection => GetLoop(map, (startX, startY), (connection.X, connection.Y)).ToArray()).ToArray();
+    loops = loops.Where(loop => loop.Last() == (startX, startY)).ToArray();
     int maxLength = loops.Max(l => l.Count());
     return loops.First(l => l.Count() == maxLength).Take(maxLength - 1).ToArray();
 }
@@ -81,84 +103,75 @@ IEnumerable<(int X, int Y)> GetLoop(char[][] map, (int X, int Y) start, (int X, 
 int CountInsideLoop(char[][] map, (int X, int Y)[] loop)
 {
     HashSet<(int X, int Y)> loopSet = new(loop);
-    HashSet<(int X, int Y)> outsideLoop = new();
-
-    IEnumerable<(int X, int Y)> ToIterate(int mapLength, int side, int depth)
-    {
-        (int startX, int startY, int endX, int endY, int directionX, int directionY) = (0, 0, 0, 0, 0, 0);
-        switch (side)
-        {
-            case 0:
-                startX = depth;
-                startY = depth;
-                endX = depth;
-                endY = mapLength - depth;
-                directionY = 1;
-                break;
-            case 1:
-                startX = depth;
-                startY = depth;
-                endX = mapLength - depth;
-                endY = depth;
-                directionX = 1;
-                break;
-            case 2:
-                startX = mapLength - depth;
-                startY = mapLength - depth;
-                endX = depth;
-                endY = mapLength - depth;
-                directionX = -1;
-                break;
-            case 3:
-                startX = mapLength - depth;
-                startY = mapLength - depth;
-                endX = mapLength - depth;
-                endY = depth;
-                directionY = -1;
-                break;
-            default:
-                throw new Exception();
-        }
-
-        var current = (X: startX, Y: startY);
-        while (true)
-        {
-            yield return current;
-            if (current == (endX, endY))
-            {
-                break;
-            }
-            current = (current.X + directionX, current.Y + directionY);
-        }
-    }
+    Queue<(int X, int Y)> toSearch = new();
 
     (int X, int Y)[] Sides = { (-1, 0), (1, 0), (0, 1), (0, -1) };
 
-    for (int depth = 0; depth < map.Length / 2; depth++)
+    for (int x = 0; x < map[0].Length; x++)
     {
-        for (int side = 0; side < 4; side++)
+        foreach (int y in new[] { 0, map.Length - 1 })
         {
-            foreach (var marker in ToIterate(map.Length, side, depth))
+            if (!loopSet.Contains((x, y)))
             {
-                if (!loopSet.Contains(marker) && Sides.Any(s => outsideLoop.Contains((marker.X + s.X, marker.Y + s.Y))))
+                toSearch.Enqueue((x, y));
+            }
+        }
+    }
+
+    for (int y = 0; y < map.Length; y++)
+    {
+        foreach (int x in new[] { 0, map[0].Length - 1 })
+        {
+            if (!loopSet.Contains((x, y)))
+            {
+                toSearch.Enqueue((x, y));
+            }
+        }
+    }
+
+    var outsideLoop = new HashSet<(int X, int Y)>();
+    while (toSearch.Any())
+    {
+        var toCheck = toSearch.Dequeue();
+        if (!loopSet.Contains(toCheck))
+        {
+            outsideLoop.Add(toCheck);
+            foreach (var side in Sides)
+            {
+                var neighbour = (X: toCheck.X + side.X, Y: toCheck.Y + side.Y);
+                if (neighbour.X >= 0 && neighbour.X < map[0].Length && neighbour.Y >= 0 && neighbour.Y < map.Length && !outsideLoop.Contains(neighbour))
                 {
-                    outsideLoop.Add(marker);
+                    toSearch.Enqueue(neighbour);
                 }
             }
         }
     }
-    return (map.Length * map.Length) - loop.Length - outsideLoop.Count;
+
+    for (int y = 0; y < map.Length; y++)
+    {
+        for (int x = 0; x < map[0].Length; x++)
+        {
+            if (loopSet.Contains((x, y)))
+            {
+                Console.Write("X");
+            }
+            else if (outsideLoop.Contains((x, y)))
+            {
+                Console.Write("O");
+            }
+            else
+            {
+                Console.Write("I");
+            }
+        }
+
+        Console.WriteLine();
+    }
+
+    return (map.Length * map[0].Length) - loop.Length - outsideLoop.Count;
 }
 
-string puzzleInput = @"...........
-.S-------7.
-.|F-----7|.
-.||.....||.
-.||.....||.
-.|L-7.F-J|.
-.|..|.|..|.
-.L--J.L--J.
-...........";
+string puzzleInput = await Util.GetPuzzleInput(10);
 
 char[][] map = puzzleInput.Split(Environment.NewLine, StringSplitOptions.RemoveEmptyEntries).Select(l => l.ToCharArray()).ToArray();
 var largestLoop = FindLargestConnectingLoop(map);
