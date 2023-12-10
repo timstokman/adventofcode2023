@@ -60,6 +60,16 @@ Dictionary<char, (int X, int Y)[]> connectors = new()
     { 'S', Sides },
 };
 
+Direction TurnDirection(bool turningClockwise, Direction direction)
+{
+    return (Direction)Mod((int)(turningClockwise ? direction + 1 : direction - 1), 4);
+}
+
+int Mod(int x, int m) {
+    int r = x % m;
+    return r < 0 ? r + m : r;
+}
+
 bool IsTurningClockwise((int X, int Y) item, (int X, int Y) previous, (int X, int Y) next)
 {
     return (item.X - previous.X == 1 && item.Y - previous.Y == 0 && next.X - item.X == 0 && next.Y - item.Y == 1) ||
@@ -150,11 +160,6 @@ IEnumerable<(int X, int Y)> GetLoop(char[][] map, (int X, int Y) start, (int X, 
     return loops.First(l => l.Length == maxLength).Take(maxLength - 1).ToArray();
 }
 
-int Mod(int x, int m) {
-    int r = x % m;
-    return r < 0 ? r + m : r;
-}
-
 (int X, int Y) StartNodeForInsideTrace(char[][] map, HashSet<(int X, int Y)> loopSet)
 {
     for (int startX = 0; startX < map[0].Length; startX++)
@@ -177,7 +182,6 @@ HashSet<(int X, int Y)> InsideNodes(char[][] map, (int X, int Y)[] loop)
     HashSet<(int X, int Y)> insideSet = new();
 
     (int X, int Y) startNode = StartNodeForInsideTrace(map, loopSet);
-
     int loopStartIndex = Array.IndexOf(loop, startNode);
     Direction insideLoop = Direction.Right;
     for (int i = 0; i < loop.Length; i++)
@@ -187,10 +191,10 @@ HashSet<(int X, int Y)> InsideNodes(char[][] map, (int X, int Y)[] loop)
         (int X, int Y) next = loop[Mod(loopStartIndex + i + 1, loop.Length)];
         bool turning = Math.Abs(previous.X - next.X) != 2 && Math.Abs(previous.Y - next.Y) != 2;
         bool turningClockwise = turning && IsTurningClockwise(item, previous, next);
-        Direction newDirection = turning ? (Direction)Mod((int)(turningClockwise ? insideLoop + 1 : insideLoop - 1), 4) : insideLoop;
+        Direction newDirection = turning ? TurnDirection(turningClockwise, insideLoop) : insideLoop;
         
         // "Flood" inside section
-        var toSearch = new Queue<(int X, int Y)>(new[] { MoveDirection(insideLoop, item), MoveDirection(newDirection, item) });
+        Queue<(int X, int Y)> toSearch = new(new[] { MoveDirection(insideLoop, item), MoveDirection(newDirection, item) });
 
         while (toSearch.Any())
         {
