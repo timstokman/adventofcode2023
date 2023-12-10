@@ -155,7 +155,7 @@ HashSet<Position> InsideNodes(char[][] map, Position[] loop)
         Direction newDirectionInside = turning ? TurnDirection(turningClockwise, insideLoop) : insideLoop;
         
         // "Flood" inside section
-        Queue<Position> toSearch = new(new[] { MoveDirection(insideLoop, item), MoveDirection(newDirectionInside, item) });
+        Queue<Position> toSearch = new(new[] { MoveDirection(insideLoop, item), turningClockwise ? MoveDirection(insideLoop, item) : MoveDirection(newDirectionInside, item) });
 
         while (toSearch.Any())
         {
