@@ -1,6 +1,6 @@
 ﻿using Common;
 
-(int X, int Y)[] Sides = new[] { (0, -1), (0, 1), (-1, 0), (1, 0) };
+(int X, int Y)[] Sides = { (0, -1), (0, 1), (-1, 0), (1, 0) };
 
 Dictionary<char, (int X, int Y)[]> connectors = new()
 {
