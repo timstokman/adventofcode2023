@@ -92,7 +92,7 @@ bool IsTurningClockwise((int X, int Y) item, (int X, int Y) previous, (int X, in
 
 (int X, int Y)[] GetConnectingPipes(char[][] map, (int x, int y) position)
 {
-    if (connectors.TryGetValue(map[position.y][position.x], out var connections))
+    if (connectors.TryGetValue(map[position.y][position.x], out (int X, int Y)[]? connections))
     {
         return connections.Where(connection =>
         {
@@ -154,7 +154,7 @@ IEnumerable<(int X, int Y)> GetLoop(char[][] map, (int X, int Y) start, (int X, 
 
 (int X, int Y)[] FindLargestConnectingLoop(char[][] map)
 {
-    var start = StartNode(map);
+    (int X, int Y) start = StartNode(map);
     (int X, int Y)[][] loops = GetConnectingPipes(map, (start.X, start.Y)).Select(connection => GetLoop(map, (start.X, start.Y), (connection.X, connection.Y)).ToArray()).Where(loop => loop.Last() == (start.X, start.Y)).ToArray();
     int maxLength = loops.Max(l => l.Length);
     return loops.First(l => l.Length == maxLength).Take(maxLength - 1).ToArray();
@@ -202,7 +202,7 @@ HashSet<(int X, int Y)> InsideNodes(char[][] map, (int X, int Y)[] loop)
             if (searchItem.X >= 0 && searchItem.Y >= 0 && searchItem.X < map[0].Length && searchItem.Y < map.Length && !loopSet.Contains(searchItem) && !insideSet.Contains(searchItem))
             {
                 insideSet.Add(searchItem);
-                foreach (var side in Sides)
+                foreach ((int X, int Y) side in Sides)
                 {
                     toSearch.Enqueue((searchItem.X + side.X, searchItem.Y + side.Y));
                 }
