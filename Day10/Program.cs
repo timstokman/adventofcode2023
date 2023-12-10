@@ -1,17 +1,6 @@
 ﻿using Common;
 
-(int, int) InsideNode(Direction insideDirection, (int X, int Y) node)
-{
-    var valueTuple = insideDirection switch
-    {
-        Direction.Left => (node.X - 1, node.Y),
-        Direction.Top => (node.X, node.Y - 1),
-        Direction.Right => (node.X + 1, node.Y),
-        Direction.Bottom => (node.X, node.Y + 1),
-        _ => throw new ArgumentOutOfRangeException()
-    };
-    return valueTuple;
-}
+(int X, int Y)[] Sides = new[] { (0, -1), (0, 1), (-1, 0), (1, 0) };
 
 Dictionary<char, (int X, int Y)[]> connectors = new()
 {
@@ -21,7 +10,7 @@ Dictionary<char, (int X, int Y)[]> connectors = new()
     { 'J', new []{ (0, -1), (-1, 0) }},
     { 'F', new []{ (0, 1), (1, 0) }},
     { '7', new []{ (0, 1), (-1, 0) }},
-    { 'S', new[] { (0, -1), (0, 1), (-1, 0), (1, 0) }},
+    { 'S', Sides },
 };
 
 void PrintLoop(char[][] map, (int X, int Y)[] loop)
@@ -46,20 +35,18 @@ void PrintLoop(char[][] map, (int X, int Y)[] loop)
     }
 }
 
-void PrintInside(char[][] map, IEnumerable<(int X, int Y)> loop, IEnumerable<(int X, int Y)> inside)
+void PrintInside(char[][] map, HashSet<(int X, int Y)> loop, HashSet<(int X, int Y)> inside)
 {
     Console.WriteLine("Fill:");
-    var loopSet = new HashSet<(int X, int Y)>(loop);
-    var insideSet = new HashSet<(int X, int Y)>(inside);
     for (int y = 0; y < map.Length; y++)
     {
         for (int x = 0; x < map[0].Length; x++)
         {
-            if (loopSet.Contains((x, y)))
+            if (loop.Contains((x, y)))
             {
                 Console.Write("L");
             }
-            else if (insideSet.Contains((x, y)))
+            else if (inside.Contains((x, y)))
             {
                 Console.Write("I");
             }
@@ -71,6 +58,26 @@ void PrintInside(char[][] map, IEnumerable<(int X, int Y)> loop, IEnumerable<(in
 
         Console.WriteLine();
     }
+}
+
+bool IsTurningClockwise((int X, int Y) item, (int X, int Y) previous, (int X, int Y) next)
+{
+    return (item.X - previous.X == 1 && item.Y - previous.Y == 0 && next.X - item.X == 0 && next.Y - item.Y == 1) ||
+           (item.X - previous.X == 0 && item.Y - previous.Y == 1 && next.X - item.X == -1 && next.Y - item.Y == 0) ||
+           (item.X - previous.X == -1 && item.Y - previous.Y == 0 && next.X - item.X == 0 && next.Y - item.Y == -1) ||
+           (item.X - previous.X == 0 && item.Y - previous.Y == -1 && next.X - item.X == 1 && next.Y - item.Y == 0);
+}
+
+(int, int) InsideNode(Direction insideDirection, (int X, int Y) node)
+{
+    return insideDirection switch
+    {
+        Direction.Left => (node.X - 1, node.Y),
+        Direction.Top => (node.X, node.Y - 1),
+        Direction.Right => (node.X + 1, node.Y),
+        Direction.Bottom => (node.X, node.Y + 1),
+        _ => throw new ArgumentOutOfRangeException()
+    };
 }
 
 (int X, int Y)[] GetConnectingPipes(char[][] map, (int x, int y) position)
@@ -100,11 +107,11 @@ void PrintInside(char[][] map, IEnumerable<(int X, int Y)> loop, IEnumerable<(in
 IEnumerable<(int X, int Y)> GetLoop(char[][] map, (int X, int Y) start, (int X, int Y) next)
 {
     yield return start;
-    var previous = start;
+    (int X, int Y) previous = start;
     while (true)
     {
         yield return next;
-        var connecting = GetConnectingPipes(map, next).Where(c => c != previous).ToArray();
+        (int X, int Y)[] connecting = GetConnectingPipes(map, next).Where(c => c != previous).ToArray();
         if (connecting.Length != 1)
         {
             break;
@@ -121,7 +128,7 @@ IEnumerable<(int X, int Y)> GetLoop(char[][] map, (int X, int Y) start, (int X, 
     }
 }
 
-IEnumerable<(int X, int Y)> FindLargestConnectingLoop(char[][] map)
+(int X, int Y) StartNode(char[][] map)
 {
     int startX = 0;
     int startY = 0;
@@ -130,18 +137,24 @@ IEnumerable<(int X, int Y)> FindLargestConnectingLoop(char[][] map)
         startX = Array.IndexOf(map[startY], 'S');
         if (startX >= 0)
         {
-            break;
+            return (startX, startY);
         }
     }
 
-    (int X, int Y)[][] loops = GetConnectingPipes(map, (startX, startY)).Select(connection => GetLoop(map, (startX, startY), (connection.X, connection.Y)).ToArray()).Where(loop => loop.Last() == (startX, startY)).ToArray();
-    int maxLength = loops.Max(l => l.Count());
-    return loops.First(l => l.Count() == maxLength).Take(maxLength - 1);
+    return (-1, -1);
+}
+
+(int X, int Y)[] FindLargestConnectingLoop(char[][] map)
+{
+    var start = StartNode(map);
+    (int X, int Y)[][] loops = GetConnectingPipes(map, (start.X, start.Y)).Select(connection => GetLoop(map, (start.X, start.Y), (connection.X, connection.Y)).ToArray()).Where(loop => loop.Last() == (start.X, start.Y)).ToArray();
+    int maxLength = loops.Max(l => l.Length);
+    return loops.First(l => l.Length == maxLength).Take(maxLength - 1).ToArray();
 }
 
 int Mod(int x, int m) {
     int r = x % m;
-    return r <0  ? r + m : r;
+    return r < 0 ? r + m : r;
 }
 
 (int X, int Y) StartNodeForInsideTrace(char[][] map, HashSet<(int X, int Y)> loopSet)
@@ -150,7 +163,7 @@ int Mod(int x, int m) {
     {
         for (int startY = 0; startY < map.Length; startY++)
         {
-            if (map[startY][startX] == '|' && loopSet.Contains((startX, startY)))
+            if (loopSet.Contains((startX, startY)))
             {
                 return (startX, startY);
             }
@@ -160,14 +173,12 @@ int Mod(int x, int m) {
     return (-1, -1);
 }
 
-IEnumerable<(int X, int Y)> InsideNodes(char[][] map, (int X, int Y)[] loop)
+HashSet<(int X, int Y)> InsideNodes(char[][] map, (int X, int Y)[] loop)
 {
     HashSet<(int X, int Y)> loopSet = new(loop);
     HashSet<(int X, int Y)> insideSet = new();
 
-    var startNode = StartNodeForInsideTrace(map, loopSet);
-
-    (int X, int Y)[] Sides = { (-1, 0), (1, 0), (0, 1), (0, -1) };
+    (int X, int Y) startNode = StartNodeForInsideTrace(map, loopSet);
 
     int loopStartIndex = Array.IndexOf(loop, startNode);
     Direction insideLoop = Direction.Right;
@@ -177,14 +188,7 @@ IEnumerable<(int X, int Y)> InsideNodes(char[][] map, (int X, int Y)[] loop)
         (int X, int Y) previous = loop[Mod(loopStartIndex + i - 1, loop.Length)];
         (int X, int Y) next = loop[Mod(loopStartIndex + i + 1, loop.Length)];
         bool turning = Math.Abs(previous.X - next.X) != 2 && Math.Abs(previous.Y - next.Y) != 2;
-        bool turningClockwise =
-            turning &&
-            (
-                (item.X - previous.X == 1 && item.Y - previous.Y == 0 && next.X - item.X == 0 && next.Y - item.Y == 1) ||
-                (item.X - previous.X == 0 && item.Y - previous.Y == 1 && next.X - item.X == -1 && next.Y - item.Y == 0) ||
-                (item.X - previous.X == -1 && item.Y - previous.Y == 0 && next.X - item.X == 0 && next.Y - item.Y == -1) ||
-                (item.X - previous.X == 0 && item.Y - previous.Y == -1 && next.X - item.X == 1 && next.Y - item.Y == 0)
-            );
+        bool turningClockwise = turning && IsTurningClockwise(item, previous, next);
         Direction newDirection = turning ? (Direction)Mod((int)(turningClockwise ? insideLoop + 1 : insideLoop - 1), 4) : insideLoop;
         
         // "Flood" inside section
@@ -212,9 +216,9 @@ IEnumerable<(int X, int Y)> InsideNodes(char[][] map, (int X, int Y)[] loop)
 string puzzleInput = await Util.GetPuzzleInput(10);
 
 char[][] map = puzzleInput.Split(Environment.NewLine, StringSplitOptions.RemoveEmptyEntries).Select(l => l.ToCharArray()).ToArray();
-IEnumerable<(int X, int Y)> largestLoop = FindLargestConnectingLoop(map);
-IEnumerable<(int X, int Y)> insideLoop = InsideNodes(map, largestLoop.ToArray());
-Console.WriteLine($"Maximum distance beast: {largestLoop.Count() / 2}");
-Console.WriteLine($"Area inside loop: {insideLoop.Count()}");
-PrintLoop(map, largestLoop.ToArray());
-PrintInside(map, largestLoop, insideLoop);
+(int X, int Y)[] largestLoop = FindLargestConnectingLoop(map);
+HashSet<(int X, int Y)> insideLoop = InsideNodes(map, largestLoop);
+Console.WriteLine($"Maximum distance beast: {largestLoop.Length / 2}");
+Console.WriteLine($"Area inside loop: {insideLoop.Count}");
+PrintLoop(map, largestLoop);
+PrintInside(map, new HashSet<(int X, int Y)> (largestLoop), insideLoop);
