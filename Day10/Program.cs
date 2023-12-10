@@ -1,18 +1,5 @@
 ﻿using Common;
 
-(int X, int Y)[] Sides = { (0, -1), (0, 1), (-1, 0), (1, 0) };
-
-Dictionary<char, (int X, int Y)[]> connectors = new()
-{
-    { '|', new []{ (0, -1), (0, 1) }},
-    { '-', new []{ (-1, 0), (1, 0) }},
-    { 'L', new []{ (0, -1), (1, 0) }},
-    { 'J', new []{ (0, -1), (-1, 0) }},
-    { 'F', new []{ (0, 1), (1, 0) }},
-    { '7', new []{ (0, 1), (-1, 0) }},
-    { 'S', Sides },
-};
-
 void PrintLoop(char[][] map, (int X, int Y)[] loop)
 {
     HashSet<(int X, int Y)> loopSet = new(loop);
@@ -59,6 +46,19 @@ void PrintInside(char[][] map, HashSet<(int X, int Y)> loop, HashSet<(int X, int
         Console.WriteLine();
     }
 }
+
+(int X, int Y)[] Sides = { (0, -1), (0, 1), (-1, 0), (1, 0) };
+
+Dictionary<char, (int X, int Y)[]> connectors = new()
+{
+    { '|', new []{ (0, -1), (0, 1) }},
+    { '-', new []{ (-1, 0), (1, 0) }},
+    { 'L', new []{ (0, -1), (1, 0) }},
+    { 'J', new []{ (0, -1), (-1, 0) }},
+    { 'F', new []{ (0, 1), (1, 0) }},
+    { '7', new []{ (0, 1), (-1, 0) }},
+    { 'S', Sides },
+};
 
 bool IsTurningClockwise((int X, int Y) item, (int X, int Y) previous, (int X, int Y) next)
 {
@@ -130,11 +130,9 @@ IEnumerable<(int X, int Y)> GetLoop(char[][] map, (int X, int Y) start, (int X, 
 
 (int X, int Y) StartNode(char[][] map)
 {
-    int startX = 0;
-    int startY = 0;
-    for (startY = 0; startY < map.Length; startY++)
+    for (int startY = 0; startY < map.Length; startY++)
     {
-        startX = Array.IndexOf(map[startY], 'S');
+        int startX = Array.IndexOf(map[startY], 'S');
         if (startX >= 0)
         {
             return (startX, startY);
