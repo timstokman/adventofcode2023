@@ -62,9 +62,7 @@ Dictionary<char, Position[]> connectors = new()
 };
 
 Direction TurnDirection(bool turningClockwise, Direction direction)
-{
-    return (Direction)Mod((int)(turningClockwise ? direction + 1 : direction - 1), 4);
-}
+    => (Direction)Mod((int)(turningClockwise ? direction + 1 : direction - 1), 4);
 
 int Mod(int x, int m) {
     int r = x % m;
@@ -72,16 +70,13 @@ int Mod(int x, int m) {
 }
 
 bool IsTurningClockwise(Position item, Position previous, Position next)
-{
-    return (item.X - previous.X == 1 && item.Y - previous.Y == 0 && next.X - item.X == 0 && next.Y - item.Y == 1) ||
-           (item.X - previous.X == 0 && item.Y - previous.Y == 1 && next.X - item.X == -1 && next.Y - item.Y == 0) ||
-           (item.X - previous.X == -1 && item.Y - previous.Y == 0 && next.X - item.X == 0 && next.Y - item.Y == -1) ||
-           (item.X - previous.X == 0 && item.Y - previous.Y == -1 && next.X - item.X == 1 && next.Y - item.Y == 0);
-}
+    => (item.X - previous.X == 1 && item.Y - previous.Y == 0 && next.X - item.X == 0 && next.Y - item.Y == 1) ||
+       (item.X - previous.X == 0 && item.Y - previous.Y == 1 && next.X - item.X == -1 && next.Y - item.Y == 0) ||
+       (item.X - previous.X == -1 && item.Y - previous.Y == 0 && next.X - item.X == 0 && next.Y - item.Y == -1) ||
+       (item.X - previous.X == 0 && item.Y - previous.Y == -1 && next.X - item.X == 1 && next.Y - item.Y == 0);
 
 (int, int) MoveDirection(Direction direction, Position node)
-{
-    return direction switch
+    => direction switch
     {
         Direction.Left => (node.X - 1, node.Y),
         Direction.Top => (node.X, node.Y - 1),
@@ -89,7 +84,6 @@ bool IsTurningClockwise(Position item, Position previous, Position next)
         Direction.Bottom => (node.X, node.Y + 1),
         _ => throw new ArgumentOutOfRangeException()
     };
-}
 
 Position[] GetConnectingPipes(char[][] map, Position position)
 {
@@ -123,7 +117,7 @@ IEnumerable<Position> WalkPath(char[][] map, Position start, Position next)
     {
         yield return next;
         Position[] connecting = GetConnectingPipes(map, next).Where(c => c != previous).ToArray();
-        if (connecting.Length != 1)
+        if (connecting.Length < 1)
         {
             break;
         }
