@@ -114,7 +114,7 @@ bool IsTurningClockwise((int X, int Y) item, (int X, int Y) previous, (int X, in
     }
 }
 
-IEnumerable<(int X, int Y)> GetLoop(char[][] map, (int X, int Y) start, (int X, int Y) next)
+IEnumerable<(int X, int Y)> WalkPath(char[][] map, (int X, int Y) start, (int X, int Y) next)
 {
     yield return start;
     (int X, int Y) previous = start;
@@ -155,7 +155,8 @@ IEnumerable<(int X, int Y)> GetLoop(char[][] map, (int X, int Y) start, (int X, 
 (int X, int Y)[] FindLargestConnectingLoop(char[][] map)
 {
     (int X, int Y) start = StartNode(map);
-    (int X, int Y)[][] loops = GetConnectingPipes(map, (start.X, start.Y)).Select(connection => GetLoop(map, (start.X, start.Y), (connection.X, connection.Y)).ToArray()).Where(loop => loop.Last() == (start.X, start.Y)).ToArray();
+    IEnumerable<(int X, int Y)[]> paths = GetConnectingPipes(map, (start.X, start.Y)).Select(connection => WalkPath(map, (start.X, start.Y), (connection.X, connection.Y)).ToArray());
+    (int X, int Y)[][] loops = paths.Where(loop => loop.Last() == (start.X, start.Y)).ToArray();
     int maxLength = loops.Max(l => l.Length);
     return loops.First(l => l.Length == maxLength).Take(maxLength - 1).ToArray();
 }
