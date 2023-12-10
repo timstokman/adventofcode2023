@@ -16,14 +16,14 @@ Dictionary<char, Position[]> connectors = new()
 
 Dictionary<char, char> unicodeMap = new()
 {
-    { '-', '─'      },
-    { '|', '│'      },
-    { 'F', '┌'      },
-    { '7', '┐'      },
-    { 'L', '└'      },
-    { 'J', '┘'      },
-    { '.', ' '      },
-    { 'S', '\u2666' }
+    { '-', '─' },
+    { '|', '│' },
+    { 'F', '┌' },
+    { '7', '┐' },
+    { 'L', '└' },
+    { 'J', '┘' },
+    { '.', ' ' },
+    { 'S', '❖' }
 };
 
 Direction TurnDirection(bool turningClockwise, Direction direction)
