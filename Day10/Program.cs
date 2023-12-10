@@ -68,9 +68,9 @@ bool IsTurningClockwise((int X, int Y) item, (int X, int Y) previous, (int X, in
            (item.X - previous.X == 0 && item.Y - previous.Y == -1 && next.X - item.X == 1 && next.Y - item.Y == 0);
 }
 
-(int, int) InsideNode(Direction insideDirection, (int X, int Y) node)
+(int, int) MoveDirection(Direction direction, (int X, int Y) node)
 {
-    return insideDirection switch
+    return direction switch
     {
         Direction.Left => (node.X - 1, node.Y),
         Direction.Top => (node.X, node.Y - 1),
@@ -190,7 +190,7 @@ HashSet<(int X, int Y)> InsideNodes(char[][] map, (int X, int Y)[] loop)
         Direction newDirection = turning ? (Direction)Mod((int)(turningClockwise ? insideLoop + 1 : insideLoop - 1), 4) : insideLoop;
         
         // "Flood" inside section
-        var toSearch = new Queue<(int X, int Y)>(new[] { InsideNode(insideLoop, item), InsideNode(newDirection, item) });
+        var toSearch = new Queue<(int X, int Y)>(new[] { MoveDirection(insideLoop, item), MoveDirection(newDirection, item) });
 
         while (toSearch.Any())
         {
