@@ -21,11 +21,12 @@ static long ShortestPath(Position start, Position end, int emptySpaceSize, int[]
 string puzzleInput = await Util.GetPuzzleInput(11);
 
 string[] map = puzzleInput.Split(Environment.NewLine, StringSplitOptions.RemoveEmptyEntries);
+Position[] galaxies = map.SelectMany((row, r) => row.Select((i, c) => (i, c)).Where(i => i.i == '#').Select(i => new Position(i.c, r))).ToArray();
 int[] emptyRows = map.Select((row, rowIndex) => (row, rowIndex)).Where(row => row.row.All(c => c == '.')).Select(row => row.rowIndex).ToArray();
 int[] emptyColumns = Enumerable.Range(0, map[0].Length).Select(c => (Column: Enumerable.Range(0, map.Length).Select(r => map[r][c]).ToArray(), Index: c)).Where(c => c.Column.All(c => c == '.')).Select(c => c.Index).ToArray();
-Position[] galaxies = map.SelectMany((row, r) => row.Select((i, c) => (i, c)).Where(i => i.i == '#').Select(i => new Position(i.c, r))).ToArray();
 IEnumerable<IEnumerable<Position>> combinations = GetCombinations(galaxies);
 long sumDistances = combinations.Sum(pair => ShortestPath(pair.First(), pair.Last(), 2, emptyRows, emptyColumns));
 long sumDistancesOlder = combinations.Sum(pair => ShortestPath(pair.First(), pair.Last(), 1000000, emptyRows, emptyColumns));
+
 Console.WriteLine($"Sum distances: {sumDistances}");
 Console.WriteLine($"Sum distances older: {sumDistancesOlder}");
