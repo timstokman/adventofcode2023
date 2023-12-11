@@ -1,7 +1,7 @@
 ﻿using Common;
 using Position = (int X, int Y);
 
-static IEnumerable<IEnumerable<T>> GetCombinations<T>(IEnumerable<T> list, int length = 2) where T : IComparable
+IEnumerable<IEnumerable<T>> GetCombinations<T>(IEnumerable<T> list, int length = 2) where T : IComparable
 {
     if (length == 1)
     {
@@ -11,7 +11,7 @@ static IEnumerable<IEnumerable<T>> GetCombinations<T>(IEnumerable<T> list, int l
     return GetCombinations(list, length - 1).SelectMany(t => list.Where(o => o.CompareTo(t.Last()) > 0), (t1, t2) => t1.Concat(new T[] { t2 }));
 }
 
-static long ShortestPath(Position start, Position end, int emptySpaceSize, int[] emptyRows, int[] emptyColumns)
+long ShortestPath(Position start, Position end, int emptySpaceSize, int[] emptyRows, int[] emptyColumns)
 {
     int numEmptyRows = emptyRows.Count(r => (start.Y < r && end.Y > r) || (end.Y < r && start.Y > r));
     int numEmptyColumns = emptyColumns.Count(c => (start.X < c && end.X > c) || (end.X < c && start.X > c));
