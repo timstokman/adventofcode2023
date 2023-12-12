@@ -28,14 +28,7 @@ public record OperationalRecord(string Springs, int[] Groups)
 
         if (groupIndex >= Groups.Length || index >= Springs.Length)
         {
-            if (groupIndex == Groups.Length && (index >= Springs.Length || Springs[index..].All(s => s == '.' || s == '?')))
-            {
-                count = 1;
-            }
-            else
-            {
-                count = 0;
-            }
+            count = groupIndex == Groups.Length && (index >= Springs.Length || Springs[index..].All(s => s is '.' or '?')) ? 1 : 0;
         }
         else
         {
