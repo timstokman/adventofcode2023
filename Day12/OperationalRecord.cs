@@ -8,63 +8,40 @@ public record OperationalRecord(char[] Springs, int[] Groups)
         return new OperationalRecord(split[0].ToCharArray(), split[1].Split(",", StringSplitOptions.RemoveEmptyEntries).Select(int.Parse).ToArray());
     }
 
-    public IEnumerable<int[]> WaysToSplit(int numBucket, int numItem)
+    public OperationalRecord Unfolded(int num = 5)
+        => new OperationalRecord(string.Join("?", Enumerable.Repeat(string.Join("", Springs), num)).ToCharArray(), Enumerable.Repeat(Groups, 5).SelectMany(g => g).ToArray());
+
+    public long MatchingOperationalRecords()
     {
-        if (numBucket == 1)
+        return MatchingOperationalRecords(0, 0/*, Array.Empty<char>()*/);
+    }
+    
+    public long MatchingOperationalRecords(int groupIndex, int index/*, IEnumerable<char> solution*/)
+    {
+        if (groupIndex >= Groups.Length || index >= Springs.Length)
         {
-            yield return [ numItem ];
-        }
-        else if (numBucket > 1 && numItem > 0)
-        {
-            for (int i = 0; i <= numItem; i++)
+            if (groupIndex == Groups.Length && (index >= Springs.Length || Springs[index..].All(s => s == '.' || s == '?')))
             {
-                int[] start = [ i ];
-                foreach (int[] nextBucketSplit in WaysToSplit(numBucket - 1, numItem - i))
-                {
-                    yield return start.Concat(nextBucketSplit).ToArray();
-                }
+                // Console.WriteLine(string.Join("", solution));
+                return 1;
+            }
+            else
+            {
+                return 0;
             }
         }
-    }
 
-    public IEnumerable<char> ToEffectiveSpring(int[] split)
-    {
-        int splitIndex = 0;
-        foreach (int s in split)
+        bool canPutGroup = Springs.Length - index >= Groups[groupIndex] &&
+                           Springs[index..].Take(Groups[groupIndex]).All(c => c == '#' || c == '?') &&
+                           (index + Groups[groupIndex] >= Springs.Length || Springs[index + Groups[groupIndex]] == '.' || Springs[index + Groups[groupIndex]] == '?');
+        bool isInvalid = (!canPutGroup && Springs[index] == '#') || Springs[index..].Count(c => c == '#') >= Groups[groupIndex..].Sum();
+        bool canAdvance = Springs[index] == '.' || Springs[index] == '?';
+
+        if (isInvalid)
         {
-            for (int i = 0; i < s; i++)
-            {
-                yield return '.';
-            }
-
-            if (splitIndex < split.Length - 1)
-            {
-                for (int i = 0; i < Groups[splitIndex]; i++)
-                {
-                    yield return '#';
-                }
-            }
-
-            splitIndex++;
-        }
-    }
-
-    public bool IsMatchingSplit(int[] split)
-    {
-        if (split.Skip(1).Take(split.Length - 2).Any(s => s == 0)) // At least one between
-        {
-            return false;
+            return 0;
         }
 
-        char[] effectiveSpring = ToEffectiveSpring(split).ToArray();
-        return Springs.Select((spring, i) => spring == '?' || effectiveSpring[i] == spring).All(m => m);
-    }
-
-    public int MatchingOperationalRecords()
-    {
-        int numBuckets = Groups.Length + 1;
-        int numItems = Springs.Length - Groups.Sum();
-
-        return WaysToSplit(numBuckets, numItems).Count(IsMatchingSplit);
+        return (canAdvance ? MatchingOperationalRecords(groupIndex, index + 1/*, solution.Concat(new[] { '.' })*/) : 0) + (canPutGroup ? MatchingOperationalRecords(groupIndex + 1, index + Groups[groupIndex] + 1/*, solution.Concat(Enumerable.Repeat('#', Groups[groupIndex])).Concat(new[] { '.' })*/) : 0);
     }
 }
