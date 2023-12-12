@@ -1,15 +1,15 @@
 namespace Day12;
 
-public record OperationalRecord(char[] Springs, int[] Groups)
+public record OperationalRecord(string Springs, int[] Groups)
 {
     public static OperationalRecord FromLine(string line)
     {
         string[] split = line.Split(' ', StringSplitOptions.RemoveEmptyEntries);
-        return new OperationalRecord(split[0].ToCharArray(), split[1].Split(",", StringSplitOptions.RemoveEmptyEntries).Select(int.Parse).ToArray());
+        return new OperationalRecord(split[0], split[1].Split(",", StringSplitOptions.RemoveEmptyEntries).Select(int.Parse).ToArray());
     }
 
     public OperationalRecord Unfolded(int num = 5)
-        => new OperationalRecord(string.Join("?", Enumerable.Repeat(string.Join("", Springs), num)).ToCharArray(), Enumerable.Repeat(Groups, 5).SelectMany(g => g).ToArray());
+        => new OperationalRecord(string.Join("?", Enumerable.Repeat(Springs, num)), Enumerable.Repeat(Groups, num).SelectMany(g => g).ToArray());
 
     public long MatchingOperationalRecords()
     {
@@ -42,17 +42,8 @@ public record OperationalRecord(char[] Springs, int[] Groups)
             bool canPutGroup = Springs.Length - index >= Groups[groupIndex] &&
                                Springs[index..].Take(Groups[groupIndex]).All(c => c == '#' || c == '?') &&
                                (index + Groups[groupIndex] >= Springs.Length || Springs[index + Groups[groupIndex]] == '.' || Springs[index + Groups[groupIndex]] == '?');
-            bool isInvalid = (!canPutGroup && Springs[index] == '#') || Springs[index..].Count(c => c == '#') > Groups[groupIndex..].Sum() || Springs[index..].Count(c => c == '#' || c == '?') < Groups[groupIndex..].Sum();
             bool canAdvance = Springs[index] == '.' || Springs[index] == '?';
-
-            if (isInvalid)
-            {
-                count = 0;
-            }
-            else
-            {
-                count = (canAdvance ? MatchingOperationalRecords(cache, groupIndex, index + 1 /*, solution.Concat(new[] { '.' })*/) : 0) + (canPutGroup ? MatchingOperationalRecords(cache, groupIndex + 1, index + Groups[groupIndex] + 1 /*, solution.Concat(Enumerable.Repeat('#', Groups[groupIndex])).Concat(new[] { '.' })*/) : 0);
-            }
+            count = (canAdvance ? MatchingOperationalRecords(cache, groupIndex, index + 1) : 0) + (canPutGroup ? MatchingOperationalRecords(cache, groupIndex + 1, index + Groups[groupIndex] + 1) : 0);
         }
 
         cache[(groupIndex, index)] = count;
