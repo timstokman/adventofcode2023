@@ -33,7 +33,7 @@ public record OperationalRecord(string Springs, int[] Groups)
         else
         {
             bool canPutGroup = Springs.Length - index >= Groups[groupIndex] &&
-                               Springs[index..].Take(Groups[groupIndex]).All(c => c is '#' or '?') &&
+                               Springs[index..(index + Groups[groupIndex])].All(c => c is '#' or '?') &&
                                (index + Groups[groupIndex] >= Springs.Length || Springs[index + Groups[groupIndex]] is '.' or '?');
             bool canAdvance = Springs[index] is '.' or '?';
             count = (canAdvance ? MatchingOperationalRecords(cache, groupIndex, index + 1) : 0) + (canPutGroup ? MatchingOperationalRecords(cache, groupIndex + 1, index + Groups[groupIndex] + 1) : 0);
