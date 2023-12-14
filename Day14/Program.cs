@@ -55,13 +55,10 @@ bool MapEquals(char[][] left, char[][] right)
 
 char[][] RunCycles(char[][] map, int cycles)
 {
-    int skip = 0;
     var history = new List<char[][]>();
     for (int i = 0; i < cycles; i++)
     {
         map = RunCycle(map);
-        Print(map);
-        Console.WriteLine();
         int historyIndex = history.Select((map, i) => (map, i)).Where(r => MapEquals(r.map, map)).Select(r => r.i).FirstOrDefault(-1);
         if (historyIndex >= 0)
         {
@@ -82,10 +79,7 @@ void Print(char[][] map)
     => Console.WriteLine(string.Join(Environment.NewLine, map.Select(r => string.Join("", r))));
 
 char[][] map = puzzleInput.Split(Environment.NewLine, StringSplitOptions.RemoveEmptyEntries).Select(line => line.ToCharArray()).ToArray();
-Print(map);
-Console.WriteLine();
-// Print(north);
-// int load = Load(map);
-// Console.WriteLine(load);
-map = RunCycles(map, 1000000000);
-Console.WriteLine(Load(map));
+char[][]? tilted = TiltNorth(map);
+char[][]? cycled = RunCycles(map, 1000000000);
+Console.WriteLine($"Load tilted: {Load(tilted)}");
+Console.WriteLine($"Load cycled: {Load(cycled)}");
