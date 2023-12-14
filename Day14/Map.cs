@@ -17,7 +17,7 @@ public sealed class Map : IEquatable<Map>
         char[][] newMap = Positions.Select(row => row.Select(c => c is '.' or '#' ? c : '.').ToArray()).ToArray();
         for (int column = 0; column < Positions[0].Length; column++)
         {
-            int[] solidRockIndexes = new[] { -1}.Concat(Positions.Select((rock, row) => (rock, row)).Where(r => r.rock[column] == '#').Select(r => r.row)).Concat(new[] { Positions.Length }).ToArray();
+            int[] solidRockIndexes = new[] { -1 }.Concat(Positions.Select((rock, row) => (rock, row)).Where(r => r.rock[column] == '#').Select(r => r.row)).Concat(new[] { Positions.Length }).ToArray();
             for (int solidRockIndex = 1; solidRockIndex < solidRockIndexes.Length; solidRockIndex++)
             {
                 int startRow = solidRockIndexes[solidRockIndex - 1] + 1;
