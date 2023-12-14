@@ -11,8 +11,7 @@ string[] TransposePattern(string[] pattern)
                                    .Select(newColumnIndex => pattern[newColumnIndex][newRowIndex]).ToArray())).ToArray();
 
 IEnumerable<int> VerticalMirrorIndex(string[] pattern, int smudge)
-{
-    return Enumerable.Range(0, pattern[0].Length - 1).Where(mirrorIndex =>
+    => Enumerable.Range(0, pattern[0].Length - 1).Where(mirrorIndex =>
     {
         int rangeToCheck = Math.Min(mirrorIndex + 1, pattern[0].Length - mirrorIndex - 1);
         int numNotMirrored = Enumerable
@@ -25,7 +24,6 @@ IEnumerable<int> VerticalMirrorIndex(string[] pattern, int smudge)
             });
         return numNotMirrored == smudge;
     });
-}
 
 IEnumerable<int> HorizontalMirrorIndex(string[] pattern, int smudge)
     => VerticalMirrorIndex(TransposePattern(pattern), smudge);
