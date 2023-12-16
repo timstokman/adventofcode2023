@@ -41,7 +41,7 @@ IEnumerable<Direction> NextDirection(char encountered, Direction direction)
             };
             break;
         case '|':
-            if (direction == Direction.Top || direction == Direction.Bottom)
+            if (direction is Direction.Top or Direction.Bottom)
             {
                 yield return direction;
             }
@@ -52,7 +52,7 @@ IEnumerable<Direction> NextDirection(char encountered, Direction direction)
             }
             break;
         case '-':
-            if (direction == Direction.Left || direction == Direction.Right)
+            if (direction is Direction.Left or Direction.Right)
             {
                 yield return direction;
             }
