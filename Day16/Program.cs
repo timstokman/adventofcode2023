@@ -5,10 +5,10 @@ Position MoveInDirection(Position position, Direction direction)
 {
     return direction switch
     {
-            Direction.Top => new Position(position.X, position.Y - 1),
-            Direction.Right => new Position(position.X + 1, position.Y),
-            Direction.Bottom => new Position(position.X, position.Y + 1),
-            Direction.Left => new Position(position.X - 1, position.Y),
+        Direction.Top => new Position(position.X, position.Y - 1),
+        Direction.Right => new Position(position.X + 1, position.Y),
+        Direction.Bottom => new Position(position.X, position.Y + 1),
+        Direction.Left => new Position(position.X - 1, position.Y),
         _ => throw new ArgumentOutOfRangeException()
     };
 }
