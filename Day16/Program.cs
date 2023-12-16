@@ -14,21 +14,17 @@ void WriteState(char[][] map, Dictionary<Position, List<Direction>> nodeStates)
     }
 }
 
-int TrackEnergize(char[][] map)
+int TrackEnergize(char[][] map, Position startPosition, Direction startDirection)
 {
     int height = map.Length;
     int width = map[0].Length;
     Dictionary<Position, List<Direction>> nodeStates = new Dictionary<Position, List<Direction>>();
     Queue<(Position Position, Direction Direction)> queue = new Queue<(Position Position, Direction Direction)>();
-    queue.Enqueue((new Position(0, 0), Direction.Right));
+    queue.Enqueue((startPosition, startDirection));
 
     while (queue.Any())
     {
         (Position position, Direction direction) = queue.Dequeue();
-
-        // Console.WriteLine($"Position: {position}, Direction: {direction}");
-
-        // WriteState(map, nodeStates);
 
         if (position.X < 0 || position.X >= width || position.Y < 0 || position.Y >= height)
         {
@@ -128,4 +124,12 @@ int TrackEnergize(char[][] map)
 }
 
 char[][] map = puzzleInput.Split(Environment.NewLine, StringSplitOptions.RemoveEmptyEntries).Select(l => l.ToCharArray()).ToArray();
-Console.WriteLine(TrackEnergize(map));
+Console.WriteLine(TrackEnergize(map, new Position(0, 0), Direction.Right));
+
+var possiblePositions = 
+    Enumerable.Range(0, map.Length).Select(i => (new Position(i, 0), Direction.Bottom)).Concat(
+    Enumerable.Range(0, map.Length).Select(i => (new Position(i, map.Length - 1), Direction.Top))).Concat(
+    Enumerable.Range(0, map[0].Length).Select(i => (new Position(0, i), Direction.Right))).Concat(
+    Enumerable.Range(0, map[0].Length).Select(i => (new Position(map[0].Length - 1, i), Direction.Left)));
+    
+Console.WriteLine(possiblePositions.Max(p => TrackEnergize(map, p.Item1, p.Item2)));
