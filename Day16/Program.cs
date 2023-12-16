@@ -1,17 +1,12 @@
-﻿using System.Collections;
-using Common;
+﻿using Common;
 using Position = (int X, int Y);
 
-string puzzleInput = await Util.GetPuzzleInput(16);
-
-void WriteState(char[][] map, Dictionary<Position, List<Direction>> nodeStates)
+IEnumerable<((int X, int Y) Position, Direction Direction)> PossibleEntryPositions(int height, int width)
 {
-    int y = 0;
-    foreach (char[] line in map)
-    {
-        Console.WriteLine(string.Join("", line.Select((c, x) => nodeStates.ContainsKey(new Position(x, y)) ? "#" : c.ToString())));
-        y++;
-    }
+    return Enumerable.Range(0, height).Select(i => (new Position(i, 0), Direction.Bottom)).Concat(
+           Enumerable.Range(0, height).Select(i => (new Position(i, height - 1), Direction.Top))).Concat(
+           Enumerable.Range(0, width).Select(i => (new Position(0, i), Direction.Right))).Concat(
+           Enumerable.Range(0, width).Select(i => (new Position(width - 1, i), Direction.Left)));
 }
 
 int TrackEnergize(char[][] map, Position startPosition, Direction startDirection)
@@ -123,13 +118,12 @@ int TrackEnergize(char[][] map, Position startPosition, Direction startDirection
     return nodeStates.Keys.Count;
 }
 
-char[][] map = puzzleInput.Split(Environment.NewLine, StringSplitOptions.RemoveEmptyEntries).Select(l => l.ToCharArray()).ToArray();
-Console.WriteLine(TrackEnergize(map, new Position(0, 0), Direction.Right));
+string puzzleInput = await Util.GetPuzzleInput(16);
 
-var possiblePositions = 
-    Enumerable.Range(0, map.Length).Select(i => (new Position(i, 0), Direction.Bottom)).Concat(
-    Enumerable.Range(0, map.Length).Select(i => (new Position(i, map.Length - 1), Direction.Top))).Concat(
-    Enumerable.Range(0, map[0].Length).Select(i => (new Position(0, i), Direction.Right))).Concat(
-    Enumerable.Range(0, map[0].Length).Select(i => (new Position(map[0].Length - 1, i), Direction.Left)));
-    
-Console.WriteLine(possiblePositions.Max(p => TrackEnergize(map, p.Item1, p.Item2)));
+char[][] map = puzzleInput.Split(Environment.NewLine, StringSplitOptions.RemoveEmptyEntries).Select(l => l.ToCharArray()).ToArray();
+int numEnergized = TrackEnergize(map, new Position(0, 0), Direction.Right);
+Console.WriteLine($"Num energized: {numEnergized}");
+
+var possiblePositions = PossibleEntryPositions(map.Length, map[0].Length);
+int maxEnergized = possiblePositions.Max(p => TrackEnergize(map, p.Position, p.Direction));
+Console.WriteLine($"Max energized: {maxEnergized}");
