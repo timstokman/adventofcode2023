@@ -1,77 +1,69 @@
 ﻿using Common;
 using Position = (int X, int Y);
 
-IEnumerable<(Position Position, Direction Direction)> NextPositions(char[][] chars, Position position, Direction direction)
+Position MoveInDirection(Position position, Direction direction)
 {
-    switch (chars[position.Y][position.X])
+    return direction switch
+    {
+            Direction.Top => new Position(position.X, position.Y - 1),
+            Direction.Right => new Position(position.X + 1, position.Y),
+            Direction.Bottom => new Position(position.X, position.Y + 1),
+            Direction.Left => new Position(position.X - 1, position.Y),
+        _ => throw new ArgumentOutOfRangeException()
+    };
+}
+
+IEnumerable<Direction> NextDirection(char encountered, Direction direction)
+{
+    switch (encountered)
     {
         case '.':
-            var newPosition = direction switch
-            {
-                Direction.Top => new Position(position.X, position.Y - 1),
-                Direction.Right => new Position(position.X + 1, position.Y),
-                Direction.Bottom => new Position(position.X, position.Y + 1),
-                Direction.Left => new Position(position.X - 1, position.Y),
-                _ => throw new ArgumentOutOfRangeException()
-            };
-            yield return (newPosition, direction);
+            yield return direction;
             break;
         case '/':
             yield return direction switch
             {
-                Direction.Top => (new Position(position.X + 1, position.Y), Direction.Right),
-                Direction.Right => (new Position(position.X, position.Y - 1), Direction.Top),
-                Direction.Bottom => (new Position(position.X - 1, position.Y), Direction.Left),
-                Direction.Left => (new Position(position.X, position.Y + 1), Direction.Bottom),
+                Direction.Top => Direction.Right,
+                Direction.Right => Direction.Top,
+                Direction.Bottom => Direction.Left,
+                Direction.Left => Direction.Bottom,
                 _ => throw new ArgumentOutOfRangeException()
             };
             break;
         case '\\':
             yield return direction switch
             {
-                Direction.Top => (new Position(position.X - 1, position.Y), Direction.Left),
-                Direction.Right => (new Position(position.X, position.Y + 1), Direction.Bottom),
-                Direction.Bottom => (new Position(position.X + 1, position.Y), Direction.Right),
-                Direction.Left => (new Position(position.X, position.Y - 1), Direction.Top),
+                Direction.Top => Direction.Left,
+                Direction.Right => Direction.Bottom,
+                Direction.Bottom => Direction.Right,
+                Direction.Left => Direction.Top,
                 _ => throw new ArgumentOutOfRangeException()
             };
             break;
         case '|':
             if (direction == Direction.Top || direction == Direction.Bottom)
             {
-                var newPositionVerticalSplit = direction switch
-                {
-                    Direction.Top => new Position(position.X, position.Y - 1),
-                    Direction.Bottom => new Position(position.X, position.Y + 1),
-                    _ => throw new ArgumentOutOfRangeException()
-                };
-                yield return (newPositionVerticalSplit, direction);
+                yield return direction;
             }
             else
             {
-                yield return (new Position(position.X, position.Y - 1), Direction.Top);
-                yield return (new Position(position.X, position.Y + 1), Direction.Bottom);
+                yield return Direction.Top;
+                yield return Direction.Bottom;
             }
             break;
         case '-':
             if (direction == Direction.Left || direction == Direction.Right)
             {
-                var newPositionHorizontalSplit = direction switch
-                {
-                    Direction.Right => new Position(position.X + 1, position.Y),
-                    Direction.Left => new Position(position.X - 1, position.Y),
-                    _ => throw new ArgumentOutOfRangeException()
-                };
-                yield return (newPositionHorizontalSplit, direction);
+                yield return direction;
             }
             else
             {
-                yield return (new Position(position.X - 1, position.Y), Direction.Left);
-                yield return (new Position(position.X + 1, position.Y), Direction.Right);
+                yield return Direction.Left;
+                yield return Direction.Right;
             }
             break;
         default:
-            throw new ArgumentOutOfRangeException();
+            throw new ArgumentOutOfRangeException(nameof(encountered));
     }
 }
 
@@ -87,11 +79,11 @@ int TrackEnergize(char[][] map, Position startPosition, Direction startDirection
 {
     int height = map.Length;
     int width = map[0].Length;
-    Dictionary<Position, List<Direction>> nodeStates = new();
+    Dictionary<Position, HashSet<Direction>> nodeStates = new();
     Queue<(Position Position, Direction Direction)> queue = new();
     queue.Enqueue((startPosition, startDirection));
 
-    while (queue.Any())
+    while (queue.Count != 0)
     {
         (Position position, Direction direction) = queue.Dequeue();
 
@@ -100,24 +92,18 @@ int TrackEnergize(char[][] map, Position startPosition, Direction startDirection
             continue;
         }
         
-        if (!nodeStates.TryGetValue(position, out List<Direction>? nodeState))
+        if (!nodeStates.TryGetValue(position, out HashSet<Direction>? nodeState))
         {
-            nodeState = new() { direction };
-            nodeStates[position] = nodeState;
+            nodeStates[position] = [direction];
         }
-        else
+        else if (!nodeState.Add(direction))
         {
-            if (nodeState.Contains(direction))
-            {
-                continue;
-            }
-
-            nodeState.Add(direction);
+            continue;
         }
 
-        foreach (var next in NextPositions(map, position, direction))
+        foreach (Direction nextDirection in NextDirection(map[position.Y][position.X], direction))
         {
-            queue.Enqueue(next);
+            queue.Enqueue((MoveInDirection(position, nextDirection), nextDirection));
         }
     }
 
