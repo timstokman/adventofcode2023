@@ -1,7 +1,7 @@
 ﻿using Common;
 using Point = (int X, int Y, Direction? LastDirection);
 
-int ShortestPath(int[][] nodeCosts, int maxStraightLine = 3)
+int ShortestPath(int[][] nodeCosts, int minStraightLine = 4, int maxStraightLine = 10)
 {
     int[,,] dist = new int[nodeCosts.Length, nodeCosts[0].Length, 4];
     Dictionary<Point, Point> prev = new();
@@ -11,7 +11,7 @@ int ShortestPath(int[][] nodeCosts, int maxStraightLine = 3)
     {
         for (int x = 0; x < nodeCosts[0].Length; x++)
         {
-            for (int d = 0; d < maxStraightLine + 1; d++)
+            for (int d = 0; d < 4; d++)
             {
                 if (!(x == 0 && y == 0))
                 {
@@ -56,7 +56,7 @@ int ShortestPath(int[][] nodeCosts, int maxStraightLine = 3)
                         if (newPoint.X >= 0 && newPoint.X < nodeCosts[0].Length && newPoint.Y >= 0 && newPoint.Y < nodeCosts.Length)
                         {
                             cost += nodeCosts[newPoint.Y][newPoint.X];
-                            if (queue.ContainsKey(newPoint))
+                            if (queue.ContainsKey(newPoint) && i >= minStraightLine)
                             {
                                 yield return (newPoint, cost);
                             }
