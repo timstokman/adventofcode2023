@@ -1,3 +1,3 @@
 namespace Day18;
 
-public record Edge(Position First, Position Last);
+public record Edge(Position First, Position Last, Direction Direction);

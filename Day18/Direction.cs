@@ -1,6 +1,6 @@
 namespace Day18;
 
-enum Direction
+public enum Direction
 {
     Right = 0,
     Bottom = 1,
