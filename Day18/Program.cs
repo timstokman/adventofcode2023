@@ -7,10 +7,10 @@ Position MoveInDirection(Position position, Direction direction, int amount)
 {
     return direction switch
     {
-        Direction.Top => position with { Y = position.Y - 1 },
-        Direction.Right => position with { X = position.X + 1 },
-        Direction.Bottom => position with { Y = position.Y + 1 },
-        Direction.Left => position with { X = position.X - 1 },
+        Direction.Top => position with { Y = position.Y - amount },
+        Direction.Right => position with { X = position.X + amount },
+        Direction.Bottom => position with { Y = position.Y + amount },
+        Direction.Left => position with { X = position.X - amount },
         _ => throw new ArgumentOutOfRangeException()
     };
 }
