@@ -1,4 +1,5 @@
 ﻿using Common;
+using Day16;
 using Position = (int X, int Y);
 
 Position MoveInDirection(Position position, Direction direction)
@@ -13,7 +14,7 @@ Position MoveInDirection(Position position, Direction direction)
     };
 }
 
-IEnumerable<Direction> NextDirection(char encountered, Direction direction)
+IEnumerable<Direction> NextDirection(char encountered, Day16.Direction direction)
 {
     switch (encountered)
     {
@@ -23,25 +24,25 @@ IEnumerable<Direction> NextDirection(char encountered, Direction direction)
         case '/':
             yield return direction switch
             {
-                Direction.Top => Direction.Right,
-                Direction.Right => Direction.Top,
-                Direction.Bottom => Direction.Left,
-                Direction.Left => Direction.Bottom,
+                Direction.Top => Day16.Direction.Right,
+                Direction.Right => Day16.Direction.Top,
+                Direction.Bottom => Day16.Direction.Left,
+                Direction.Left => Day16.Direction.Bottom,
                 _ => throw new ArgumentOutOfRangeException()
             };
             break;
         case '\\':
             yield return direction switch
             {
-                Direction.Top => Direction.Left,
-                Direction.Right => Direction.Bottom,
-                Direction.Bottom => Direction.Right,
-                Direction.Left => Direction.Top,
+                Direction.Top => Day16.Direction.Left,
+                Direction.Right => Day16.Direction.Bottom,
+                Direction.Bottom => Day16.Direction.Right,
+                Direction.Left => Day16.Direction.Top,
                 _ => throw new ArgumentOutOfRangeException()
             };
             break;
         case '|':
-            if (direction is Direction.Top or Direction.Bottom)
+            if (direction is Direction.Top or Day16.Direction.Bottom)
             {
                 yield return direction;
             }
@@ -52,7 +53,7 @@ IEnumerable<Direction> NextDirection(char encountered, Direction direction)
             }
             break;
         case '-':
-            if (direction is Direction.Left or Direction.Right)
+            if (direction is Direction.Left or Day16.Direction.Right)
             {
                 yield return direction;
             }

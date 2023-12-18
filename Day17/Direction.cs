@@ -1,3 +1,5 @@
+namespace Day17;
+
 enum Direction
 {
     Top = 0,

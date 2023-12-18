@@ -1,5 +1,6 @@
 ﻿using Common;
-using Point = (int X, int Y, Direction? LastDirection);
+using Day17;
+using Point = (int X, int Y, Day17.Direction? LastDirection);
 
 Direction? Inverse(Direction? direction)
 {

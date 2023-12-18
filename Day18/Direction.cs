@@ -1,4 +1,4 @@
-namespace Day16;
+namespace Day18;
 
 enum Direction
 {
