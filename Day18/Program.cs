@@ -17,10 +17,10 @@ Position MoveInDirection(Position position, Direction direction, double amount)
 
 IEnumerable<Edge> ToGraph(Instruction[] instructions)
 {
-    var current = new Position(0, 0);
+    Position current = new Position(0, 0);
     foreach (var instruction in instructions)
     {
-        var next = MoveInDirection(current, instruction.Direction, instruction.Amount);
+        Position next = MoveInDirection(current, instruction.Direction, instruction.Amount);
         yield return new Edge(current, next, instruction.Direction);
         current = next;
     }
@@ -58,9 +58,9 @@ Direction Turn(Direction direction, bool clockwise)
     };
 }
 
-IEnumerable<Position> GetEdges(Instruction[] instructions)
+IEnumerable<Position> GetNodesIncludingEdges(Instruction[] instructions)
 {
-    var graph = ToGraph(instructions).ToList();
+    List<Edge> graph = ToGraph(instructions).ToList();
     int maxX = (int)graph.Max(e => e.First.X);
     int startEdge = graph.IndexOf(graph.First(e => e.First.X == maxX && e.First.Y != e.Last.Y));
     Direction outsideGraph = Direction.Right;
@@ -76,8 +76,9 @@ IEnumerable<Position> GetEdges(Instruction[] instructions)
     }
 }
 
-long Area(Position[] points)
+long Area(Instruction[] instructions)
 {
+    Position[] points = GetNodesIncludingEdges(instructions).ToArray();
     return (long)Math.Round(Enumerable.Range(0, points.Length).Sum(i =>
     {
         var current = points[i];
@@ -86,7 +87,7 @@ long Area(Position[] points)
     }) / 2.0);
 }
 
-Instruction[] instructions = puzzleInput.Split(Environment.NewLine, StringSplitOptions.RemoveEmptyEntries).Select(l => Instruction.FromLine(l)).ToArray();
-Instruction[] realInstructions = puzzleInput.Split(Environment.NewLine, StringSplitOptions.RemoveEmptyEntries).Select(l => Instruction.FromLineReal(l)).ToArray();
-Console.WriteLine(Area(GetEdges(instructions).ToArray()));
-Console.WriteLine(Area(GetEdges(realInstructions).ToArray()));
+Instruction[] instructions = puzzleInput.Split(Environment.NewLine, StringSplitOptions.RemoveEmptyEntries).Select(l => Instruction.GetInstructionFromLine(l)).ToArray();
+Instruction[] realInstructions = puzzleInput.Split(Environment.NewLine, StringSplitOptions.RemoveEmptyEntries).Select(l => Instruction.GetRealInstructionFromLine(l)).ToArray();
+Console.WriteLine(Area(instructions));
+Console.WriteLine(Area(realInstructions));

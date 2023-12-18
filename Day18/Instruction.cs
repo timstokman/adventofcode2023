@@ -2,9 +2,9 @@ namespace Day18;
 
 record Instruction(Direction Direction, int Amount)
 {
-    public static Instruction FromLine(string line)
+    public static Instruction GetInstructionFromLine(string line)
     {
-        var split = line.Split(" ", StringSplitOptions.RemoveEmptyEntries);
+        string[] split = line.Split(" ", StringSplitOptions.RemoveEmptyEntries);
         var direction = split[0] switch
         {
             "D" => Direction.Bottom,
@@ -16,9 +16,9 @@ record Instruction(Direction Direction, int Amount)
         return new Instruction(direction, int.Parse(split[1]));
     }
 
-    public static Instruction FromLineReal(string line)
+    public static Instruction GetRealInstructionFromLine(string line)
     {
-        var split = line.Split(" ", StringSplitOptions.RemoveEmptyEntries);
+        string[] split = line.Split(" ", StringSplitOptions.RemoveEmptyEntries);
         return new Instruction((Direction)int.Parse(split[2][7].ToString()), Convert.ToInt32("0x" + split[2][2..^2], 16));
     }
 }
