@@ -89,5 +89,5 @@ long Area(Instruction[] instructions)
 
 Instruction[] instructions = puzzleInput.Split(Environment.NewLine, StringSplitOptions.RemoveEmptyEntries).Select(l => Instruction.GetInstructionFromLine(l)).ToArray();
 Instruction[] realInstructions = puzzleInput.Split(Environment.NewLine, StringSplitOptions.RemoveEmptyEntries).Select(l => Instruction.GetRealInstructionFromLine(l)).ToArray();
-Console.WriteLine(Area(instructions));
-Console.WriteLine(Area(realInstructions));
+Console.WriteLine($"Area given instructions: {Area(instructions)}");
+Console.WriteLine($"Area given real instructions: {Area(realInstructions)}");
