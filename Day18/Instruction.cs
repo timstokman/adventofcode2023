@@ -1,6 +1,6 @@
 namespace Day18;
 
-record Instruction(Direction Direction, int Amount, string HexColor)
+record Instruction(Direction Direction, int Amount)
 {
     public static Instruction FromLine(string line)
     {
@@ -13,6 +13,12 @@ record Instruction(Direction Direction, int Amount, string HexColor)
             "L" => Direction.Left,
             _ => throw new ArgumentOutOfRangeException(),
         };
-        return new Instruction(direction, int.Parse(split[1]), split[2][2..^1]);
+        return new Instruction(direction, int.Parse(split[1]));
+    }
+
+    public static Instruction FromLineReal(string line)
+    {
+        var split = line.Split(" ", StringSplitOptions.RemoveEmptyEntries);
+        return new Instruction((Direction)int.Parse(split[2][7].ToString()), Convert.ToInt32("0x" + split[2][2..^2], 16));
     }
 }

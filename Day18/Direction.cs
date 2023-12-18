@@ -2,8 +2,8 @@ namespace Day18;
 
 enum Direction
 {
-    Top = 0,
-    Right = 1,
-    Bottom = 2,
-    Left = 3
+    Right = 0,
+    Bottom = 1,
+    Left = 2,
+    Top = 3,
 }
