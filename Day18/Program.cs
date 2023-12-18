@@ -36,6 +36,7 @@ IEnumerable<Edge> ToNormalizedGraph(Instruction[] instructions)
 
 int Area(Edge[] edges)
 {
+    int[] changePoints = edges.SelectMany(e => new[] { e.First.X - 1, e.First.X, e.First.X + 1 }).Distinct().OrderBy(x => x).ToArray();
     return 0;
 }
 
