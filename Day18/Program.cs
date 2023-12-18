@@ -67,8 +67,8 @@ IEnumerable<Position> GetNodesIncludingEdges(Instruction[] instructions)
 
     for (int i = 0; i < graph.Count; i++)
     {
-        var edge = graph[(i + startEdge) % graph.Count];
-        var nextEdge = graph[(i + startEdge + 1) % graph.Count];
+        Edge edge = graph[(i + startEdge) % graph.Count];
+        Edge nextEdge = graph[(i + startEdge + 1) % graph.Count];
         bool clockwise = IsClockwiseTurn(edge.Direction, nextEdge.Direction);
         Direction nextOutsideGraph = Turn(outsideGraph, clockwise);
         yield return MoveInDirection(MoveInDirection(edge.Last, outsideGraph, 0.5), nextOutsideGraph, 0.5);
@@ -83,7 +83,7 @@ long Area(Instruction[] instructions)
     {
         var current = points[i];
         var next = points[(i + 1) % points.Length];
-        return (current.Y + next.Y) * (current.X - next.X);
+        return current.X * next.Y - next.X * current.Y;
     }) / 2.0);
 }
 
