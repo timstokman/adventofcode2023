@@ -18,7 +18,7 @@ Position MoveInDirection(Position position, Direction direction, double amount)
 IEnumerable<Edge> ToGraph(Instruction[] instructions)
 {
     Position current = new Position(0, 0);
-    foreach (var instruction in instructions)
+    foreach (Instruction instruction in instructions)
     {
         Position next = MoveInDirection(current, instruction.Direction, instruction.Amount);
         yield return new Edge(current, next, instruction.Direction);
@@ -81,8 +81,8 @@ long Area(Instruction[] instructions)
     Position[] points = GetNodesIncludingEdges(instructions).ToArray();
     return (long)Math.Round(Enumerable.Range(0, points.Length).Sum(i =>
     {
-        var current = points[i];
-        var next = points[(i + 1) % points.Length];
+        Position current = points[i];
+        Position next = points[(i + 1) % points.Length];
         return current.X * next.Y - next.X * current.Y;
     }) / 2.0);
 }
