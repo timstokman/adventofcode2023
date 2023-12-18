@@ -42,21 +42,6 @@ bool IsClockwiseTurn(Direction start, Direction end)
     };
 }
 
-Direction Inverse(Direction direction)
-{
-    return direction switch
-    {
-        Direction.Bottom => Direction.Top,
-        Direction.Left => Direction.Right,
-        Direction.Top => Direction.Bottom,
-        Direction.Right => Direction.Left,
-        _ => throw new ArgumentOutOfRangeException(),
-    };
-}
-
-Position SnapToGrid(Position position)
-    => new Position(Math.Round(position.X), Math.Round(position.Y));
-
 Direction Turn(Direction direction, bool clockwise)
 {
     return (direction, clockwise) switch
@@ -86,49 +71,19 @@ IEnumerable<Position> GetEdges(Instruction[] instructions)
         var nextEdge = graph[(i + startEdge + 1) % graph.Count];
         bool clockwise = IsClockwiseTurn(edge.Direction, nextEdge.Direction);
         Direction nextOutsideGraph = Turn(outsideGraph, clockwise);
-        yield return SnapToGrid(MoveInDirection(MoveInDirection(MoveInDirection(MoveInDirection(edge.Last, outsideGraph, 0.5), nextOutsideGraph, 0.5), Direction.Top, 0.5), Direction.Right, 0.5));
+        yield return MoveInDirection(MoveInDirection(edge.Last, outsideGraph, 0.5), nextOutsideGraph, 0.5);
         outsideGraph = nextOutsideGraph;
     }
 }
 
 long Area(Position[] points)
 {
-    return Enumerable.Range(0, points.Length).Sum(i =>
+    return (long)Math.Round(Enumerable.Range(0, points.Length).Sum(i =>
     {
         var current = points[i];
         var next = points[(i + 1) % points.Length];
-        return (long)Math.Round((current.Y + next.Y) * (current.X - next.X));
-    }) / 2;
-    /*
-    int[] changePointsX = edges.SelectMany(e => new[] { e.First.X - 1, e.First.X, e.First.X + 1 }).Distinct().OrderBy(x => x).ToArray();
-
-    long area = 0;
-    int? previousChangePointX = null;
-    long areaForInflectionPoint = 0;
-    foreach (int changePointX in changePointsX)
-    {
-        if (previousChangePointX != null && changePointX - previousChangePointX.Value > 1)
-        {
-            area += (changePointX - previousChangePointX.Value - 1) * areaForInflectionPoint;
-        }
-
-        List<Edge> matchingEdges = edges.Where(e => e.First.X == changePointX && e.Last.X == changePointX).OrderByDescending(e => Math.Min(e.First.Y, e.Last.Y)).ToList();
-        List<Edge> crossingEdges = edges.Where(e => (e.First.X < changePointX && e.Last.X > changePointX) || (e.Last.X < changePointX && e.First.X > changePointX)).OrderByDescending(e => e.First.Y).ToList();
-
-        areaForInflectionPoint = 0;
-        bool inPolygon = false;
-        while (matchingEdges.Count > 0 && crossingEdges.Count > 0)
-        {
-            
-        }
-
-        area += areaForInflectionPoint;
-
-        previousChangePointX = changePointX;
-    }
-
-    return area;
-    */
+        return (current.Y + next.Y) * (current.X - next.X);
+    }) / 2.0);
 }
 
 Instruction[] instructions = puzzleInput.Split(Environment.NewLine, StringSplitOptions.RemoveEmptyEntries).Select(l => Instruction.FromLine(l)).ToArray();
