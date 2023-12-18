@@ -1,25 +1,9 @@
 ﻿using Common;
 using Day18;
-using Position = (int X, int Y);
 
-string puzzleInput = @"
-R 6 (#70c710)
-D 5 (#0dc571)
-L 2 (#5713f0)
-D 2 (#d2c081)
-R 2 (#59c680)
-D 2 (#411b91)
-L 5 (#8ceee2)
-U 2 (#caa173)
-L 1 (#1b58a2)
-U 2 (#caa171)
-R 2 (#7807d2)
-U 3 (#a77fa3)
-L 2 (#015232)
-U 2 (#7a21e3)
-";
+string puzzleInput = await Util.GetPuzzleInput(18);
 
-Position MoveInDirection(Position position, Direction direction)
+Position MoveInDirection(Position position, Direction direction, int amount)
 {
     return direction switch
     {
@@ -31,68 +15,31 @@ Position MoveInDirection(Position position, Direction direction)
     };
 }
 
-int Dug(Instruction[] instructions)
+IEnumerable<Edge> ToGraph(Instruction[] instructions)
 {
-    Dictionary<Position, int> dug = new Dictionary<Position, int>();
-    Position current = new Position(0, 0);
-    dug[current] = 1;
+    var current = new Position(0, 0);
     foreach (var instruction in instructions)
     {
-        for (int i = 1; i <= instruction.Amount; i++)
-        {
-            current = MoveInDirection(current, instruction.Direction);
-            dug[current] = 1;
-        }
+        var next = MoveInDirection(current, instruction.Direction, instruction.Amount);
+        yield return new Edge(current, next);
+        current = next;
     }
+}
 
-    int minY = -208;
-    int maxY = 15;
-    int minX = -65;
-    int maxX = 248;
+IEnumerable<Edge> ToNormalizedGraph(Instruction[] instructions)
+{
+    var graph = ToGraph(instructions).ToArray();
+    int minX = graph.Min(e => e.First.X);
+    int minY = graph.Min(e => e.First.Y);
+    return graph.Select(e => new Edge(new Position(e.First.X - minX, e.First.Y - minY), new Position(e.Last.X - minX, e.Last.Y - minY)));
+}
 
-    Position avgPosition = new Position((int)Math.Round(dug.Keys.Average(k => k.X)), (int)Math.Round(dug.Keys.Average(k => k.Y)));
-    for (int y = 0; y <= maxY - minY; y++)
-    {
-        for (int x = 0; x <= maxX - minX; x++)
-        {
-            if (dug.ContainsKey((x + minX, y + minY)))
-            {
-                Console.Write('#');
-            }
-            else if (x + minX == avgPosition.X && y + minY == avgPosition.Y)
-            {
-                Console.Write("!");
-            }
-            else
-            {
-                Console.Write('.');
-            }
-        }
-
-        Console.WriteLine();
-    }
-
-    // Dumb way to start floodfill, will improve later
-    Queue<Position> toFill = new();
-    toFill.Enqueue(avgPosition);
-
-    while (toFill.Count > 0)
-    {
-        var item = toFill.Dequeue();
-        if (!dug.TryAdd(item, 1))
-        {
-            continue;
-        }
-
-        foreach (var d in Enum.GetValues<Direction>())
-        {
-            toFill.Enqueue(MoveInDirection(item, d));
-        }
-    }
-
-    return dug.Count;
+int Area(Edge[] edges)
+{
+    return 0;
 }
 
 Instruction[] instructions = puzzleInput.Split(Environment.NewLine, StringSplitOptions.RemoveEmptyEntries).Select(l => Instruction.FromLine(l)).ToArray();
 Instruction[] realInstructions = puzzleInput.Split(Environment.NewLine, StringSplitOptions.RemoveEmptyEntries).Select(l => Instruction.FromLineReal(l)).ToArray();
-Console.WriteLine(Dug(instructions));
+Console.WriteLine(Area(ToNormalizedGraph(instructions).ToArray()));
+Console.WriteLine(Area(ToNormalizedGraph(realInstructions).ToArray()));
