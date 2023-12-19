@@ -3,17 +3,14 @@ using Day19;
 
 IEnumerable<Restrictions> FindAcceptedRanges(Dictionary<string, Workflow> workflows, string workflow, Restrictions restrictions)
 {
-    if (!restrictions.Valid)
+    if (workflow == "A")
     {
-        return Enumerable.Empty<Restrictions>();
-    }
-    else if (workflow == "A")
-    {
-        return new[] { restrictions };
+        yield return restrictions;
+        yield break;
     }
     else if (workflow == "R")
     {
-        return Enumerable.Empty<Restrictions>();
+        yield break;
     }
 
     Restrictions current = restrictions;
@@ -22,25 +19,24 @@ IEnumerable<Restrictions> FindAcceptedRanges(Dictionary<string, Workflow> workfl
     
     foreach (Rule rule in foundWorkflow.Rules)
     {
-        if (!current.Valid)
-        {
-            break;
-        }
-
         if (rule.Operator == null)
         {
-            found = found.Concat(FindAcceptedRanges(workflows, rule.TargetFlow, current));
-            break;
+            foreach (Restrictions r in FindAcceptedRanges(workflows, rule.TargetFlow, current))
+            {
+                yield return r;
+            }
+            yield break;
         }
         else
         {
             Restrictions ruleMatchingRestriction = rule.SplitForMatching(current);
-            found = found.Concat(FindAcceptedRanges(workflows, rule.TargetFlow, ruleMatchingRestriction));
             current = rule.SplitForNonMatching(current);
+            foreach (Restrictions r in FindAcceptedRanges(workflows, rule.TargetFlow, ruleMatchingRestriction))
+            {
+                yield return r;
+            }
         }
     }
-
-    return found;
 }
 
 string puzzleInput = await Util.GetPuzzleInput(19);
@@ -52,5 +48,7 @@ Restrictions start = new Restrictions(new Restriction(1, 4000), new Restriction(
 
 Restrictions[] acceptedRanges = FindAcceptedRanges(workflows, "in", start).ToArray();
 IEnumerable<Part> accepted = parts.Where(part => acceptedRanges.Any(acceptedRange => acceptedRange.InRange(part)));
-Console.WriteLine(accepted.Sum(p => p.Sum));
-Console.WriteLine(acceptedRanges.Sum(r => r.NumValues));
+int ratingNumbersAcceptedParts = accepted.Sum(p => p.Sum);
+long numAcceptedCombinations = acceptedRanges.Sum(r => r.NumValues);
+Console.WriteLine($"Rating numbers accepted parts: {ratingNumbersAcceptedParts}");
+Console.WriteLine($"Number combinations accepted ratings: {numAcceptedCombinations}");
