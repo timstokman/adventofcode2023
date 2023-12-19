@@ -1,63 +1,13 @@
 ﻿using Common;
 using Day19;
 
-string WorkflowResult(Workflow workflow, Part part)
+IEnumerable<Restrictions> FindAcceptedRanges(Dictionary<string, Workflow> workflows, string workflow, Restrictions restrictions)
 {
-    foreach (Rule rule in workflow.Rules)
+    if (!restrictions.Valid)
     {
-        if (rule.Rating == null)
-        {
-            return rule.TargetFlow;
-        }
-        else
-        {
-            int toCompare = part.Ratings[rule.Rating.Value];
-            if (rule.Operator == Operator.Greater && toCompare > rule.Comparison)
-            {
-                return rule.TargetFlow;
-            }
-            else if (rule.Operator == Operator.Lesser && toCompare < rule.Comparison)
-            {
-                return rule.TargetFlow;
-            }
-        }
+        return Enumerable.Empty<Restrictions>();
     }
-
-    throw new ArgumentOutOfRangeException();
-}
-
-bool IsAccepted(Dictionary<string, Workflow> workflows, Part part)
-{
-    Workflow current = workflows["in"];
-
-    while (true)
-    {
-        string targetFlow = WorkflowResult(current, part);
-        if (targetFlow == "A")
-        {
-            return true;
-        }
-        else if (targetFlow == "R")
-        {
-            return false;
-        }
-        else
-        {
-            current = workflows[targetFlow];
-        }
-    }
-}
-
-long NumCombinations(Dictionary<string, Workflow> workflows)
-{
-    Restrictions start = new Restrictions(new Restriction(1, 4000), new Restriction(1, 4000), new Restriction(1, 4000), new Restriction(1, 4000));
-    IEnumerable<Restrictions> accepted = AcceptedRanges(workflows, "in", start);
-    return accepted.Sum(a => a.NumValues);
-}
-
-IEnumerable<Restrictions> AcceptedRanges(Dictionary<string, Workflow> workflows, string workflow, Restrictions restrictions)
-{
-    if (workflow == "A")
+    else if (workflow == "A")
     {
         return new[] { restrictions };
     }
@@ -67,7 +17,7 @@ IEnumerable<Restrictions> AcceptedRanges(Dictionary<string, Workflow> workflows,
     }
 
     Restrictions current = restrictions;
-    List<Restrictions> found = new List<Restrictions>();
+    IEnumerable<Restrictions> found = Enumerable.Empty<Restrictions>();
     Workflow foundWorkflow = workflows[workflow];
     
     foreach (Rule rule in foundWorkflow.Rules)
@@ -79,22 +29,14 @@ IEnumerable<Restrictions> AcceptedRanges(Dictionary<string, Workflow> workflows,
 
         if (rule.Operator == null)
         {
-            found.AddRange(AcceptedRanges(workflows, rule.TargetFlow, current));
+            found = found.Concat(FindAcceptedRanges(workflows, rule.TargetFlow, current));
             break;
         }
         else
         {
-            Restriction ratingRestriction = current.ByRating(rule.Rating.Value);
-            Restrictions ruleMatchingRestriction = 
-                current.With(rule.Rating.Value,
-                    rule.Operator == Operator.Greater ?
-                        ratingRestriction with { Start = Math.Max(ratingRestriction.Start, rule.Comparison.Value + 1) } :
-                        ratingRestriction with { End = Math.Min(ratingRestriction.End, rule.Comparison.Value - 1) });
-            found.AddRange(AcceptedRanges(workflows, rule.TargetFlow, ruleMatchingRestriction));
-            current = current.With(rule.Rating.Value,
-                rule.Operator == Operator.Greater ? 
-                    ratingRestriction with { End = Math.Min(ratingRestriction.End, rule.Comparison.Value) } :
-                    ratingRestriction with { Start = Math.Max(ratingRestriction.Start, rule.Comparison.Value) });
+            Restrictions ruleMatchingRestriction = rule.SplitForMatching(current);
+            found = found.Concat(FindAcceptedRanges(workflows, rule.TargetFlow, ruleMatchingRestriction));
+            current = rule.SplitForNonMatching(current);
         }
     }
 
@@ -106,6 +48,9 @@ string puzzleInput = await Util.GetPuzzleInput(19);
 string[] split = puzzleInput.Split(Environment.NewLine + Environment.NewLine, StringSplitOptions.RemoveEmptyEntries);
 Dictionary<string, Workflow> workflows = split[0].Split(Environment.NewLine, StringSplitOptions.RemoveEmptyEntries).Select(Workflow.WorkflowFromLine).ToDictionary(w => w.Name, w => w);
 Part[] parts = split[1].Split(Environment.NewLine, StringSplitOptions.RemoveEmptyEntries).Select(Part.PartFromLine).ToArray();
-Part[] accepted = parts.Where(p => IsAccepted(workflows, p)).ToArray();
+Restrictions start = new Restrictions(new Restriction(1, 4000), new Restriction(1, 4000), new Restriction(1, 4000), new Restriction(1, 4000));
+
+Restrictions[] acceptedRanges = FindAcceptedRanges(workflows, "in", start).ToArray();
+IEnumerable<Part> accepted = parts.Where(part => acceptedRanges.Any(acceptedRange => acceptedRange.InRange(part)));
 Console.WriteLine(accepted.Sum(p => p.Sum));
-Console.WriteLine(NumCombinations(workflows));
+Console.WriteLine(acceptedRanges.Sum(r => r.NumValues));

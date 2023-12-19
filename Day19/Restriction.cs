@@ -7,4 +7,7 @@ public record Restriction(int Start, int End)
 
     public bool Valid
         => End >= Start;
+
+    public bool InRange(int x)
+        => x >= Start && x <= End;
 }

@@ -14,4 +14,22 @@ public record Rule(Operator? Operator, Rating? Rating, int? Comparison, string T
             return new Rule(null, null, null, str);
         }
     }
+    
+    public Restrictions SplitForMatching(Restrictions current)
+    {
+        Restriction ratingRestriction = current.ByRating(Rating.Value);
+        return current.With(Rating.Value,
+            Operator == Day19.Operator.Greater ?
+                ratingRestriction with { Start = Math.Max(ratingRestriction.Start, Comparison.Value + 1) } :
+                ratingRestriction with { End = Math.Min(ratingRestriction.End, Comparison.Value - 1) });
+    }
+    
+    public Restrictions SplitForNonMatching(Restrictions current)
+    {
+        Restriction ratingRestriction = current.ByRating(Rating.Value);
+        return current.With(Rating.Value,
+            Operator == Day19.Operator.Greater ? 
+                ratingRestriction with { End = Math.Min(ratingRestriction.End, Comparison.Value) } :
+                ratingRestriction with { Start = Math.Max(ratingRestriction.Start, Comparison.Value) });
+    }
 }

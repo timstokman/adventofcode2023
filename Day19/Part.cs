@@ -1,10 +1,13 @@
 namespace Day19;
 
-public record Part(Dictionary<Rating, int> Ratings)
+public record Part(int X, int M, int A, int S)
 {
     public static Part PartFromLine(string line)
-        => new Part(line[1..^1].Split(",").Select(rat => rat.Split('=')).ToDictionary(rat => (Rating)rat[0][0], rat => int.Parse(rat[1])));
+    {
+        Dictionary<Rating, int> partItem = line[1..^1].Split(",").Select(rat => rat.Split('=')).ToDictionary(rat => (Rating)rat[0][0], rat => int.Parse(rat[1]));
+        return new Part(partItem[Rating.X], partItem[Rating.M], partItem[Rating.A], partItem[Rating.S]);
+    }
 
     public int Sum
-        => Ratings.Values.Sum();
+        => X + M + A + S;
 }
