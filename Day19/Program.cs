@@ -1,11 +1,9 @@
 ﻿using Common;
 using Day19;
 
-string puzzleInput = await Util.GetPuzzleInput(19);
-
 string WorkflowResult(Workflow workflow, Part part)
 {
-    foreach (var rule in workflow.Rules)
+    foreach (Rule rule in workflow.Rules)
     {
         if (rule.Rating == null)
         {
@@ -53,7 +51,7 @@ bool IsAccepted(Dictionary<string, Workflow> workflows, Part part)
 long NumCombinations(Dictionary<string, Workflow> workflows)
 {
     Restrictions start = new Restrictions(new Restriction(1, 4000), new Restriction(1, 4000), new Restriction(1, 4000), new Restriction(1, 4000));
-    var accepted = AcceptedRanges(workflows, "in", start);
+    IEnumerable<Restrictions> accepted = AcceptedRanges(workflows, "in", start);
     return accepted.Sum(a => a.NumValues);
 }
 
@@ -70,7 +68,7 @@ IEnumerable<Restrictions> AcceptedRanges(Dictionary<string, Workflow> workflows,
 
     Restrictions current = restrictions;
     List<Restrictions> found = new List<Restrictions>();
-    var foundWorkflow = workflows[workflow];
+    Workflow foundWorkflow = workflows[workflow];
     
     foreach (Rule rule in foundWorkflow.Rules)
     {
@@ -103,9 +101,11 @@ IEnumerable<Restrictions> AcceptedRanges(Dictionary<string, Workflow> workflows,
     return found;
 }
 
+string puzzleInput = await Util.GetPuzzleInput(19);
+
 string[] split = puzzleInput.Split(Environment.NewLine + Environment.NewLine, StringSplitOptions.RemoveEmptyEntries);
 Dictionary<string, Workflow> workflows = split[0].Split(Environment.NewLine, StringSplitOptions.RemoveEmptyEntries).Select(Workflow.WorkflowFromLine).ToDictionary(w => w.Name, w => w);
 Part[] parts = split[1].Split(Environment.NewLine, StringSplitOptions.RemoveEmptyEntries).Select(Part.PartFromLine).ToArray();
-var accepted = parts.Where(p => IsAccepted(workflows, p)).ToArray();
+Part[] accepted = parts.Where(p => IsAccepted(workflows, p)).ToArray();
 Console.WriteLine(accepted.Sum(p => p.Sum));
 Console.WriteLine(NumCombinations(workflows));
