@@ -57,8 +57,89 @@ int Execute(int numPushes, Dictionary<string, Module> modules)
     return counts[false] * counts[true];
 }
 
+Dictionary<string, long> CyclesFor(string moduleEncountered, Dictionary<string, Module> modules)
+{
+    Dictionary<string, bool> flipflopState = modules.Values.Where(m => m.Type == ModuleType.FlipFlop).ToDictionary(m => m.Name, m => false);
+    Dictionary<string, Dictionary<string, bool>> conjState = modules.Values.Where(m => m.Type == ModuleType.Conjunction).ToDictionary(m => m.Name, m => modules.Values.Where(inM => inM.Outputs.Contains(m.Name)).ToDictionary(inM => inM.Name, inM => false));
+    var broadcaster = modules["broadcaster"];
+    Module decider = modules.Values.Single(m => m.Outputs.Contains(moduleEncountered));
+    Module[] toDecider = modules.Values.Where(m => m.Outputs.Contains(decider.Name)).ToArray();
+    Dictionary<string, long> cycles = new();
+    int numPushes = 0;
+
+    while (true)
+    {
+        Queue<(string OutputName, string InputName, bool Pulse)> toProcess = new();
+        foreach (string broadcastOutput in broadcaster.Outputs)
+        {
+            toProcess.Enqueue((broadcastOutput, broadcaster.Name, false));
+        }
+
+        numPushes++;
+        while (toProcess.Count > 0)
+        {
+            (string outputName, string inputName, bool signalPulse) = toProcess.Dequeue();
+            if (modules.TryGetValue(outputName, out Module outputModule))
+            {
+                if (outputModule.Type == ModuleType.FlipFlop)
+                {
+                    if (!signalPulse)
+                    {
+                        bool outputState = flipflopState[outputName];
+                        bool outputSignal = !outputState;
+                        bool newState = !outputState;
+                        flipflopState[outputModule.Name] = newState;
+
+                        foreach (string newOutput in outputModule.Outputs)
+                        {
+                            toProcess.Enqueue((newOutput, outputName, outputSignal));
+                        }
+                    }
+                }
+                else if (outputModule.Type == ModuleType.Conjunction)
+                {
+                    var state = conjState[outputModule.Name];
+                    state[inputName] = signalPulse;
+                    bool outputSignal = state.Values.All(i => i) ? false : true;
+
+                    foreach (string newOutput in outputModule.Outputs)
+                    {
+                        if (toDecider.Any(t => t.Name == newOutput) && !outputSignal && !cycles.ContainsKey(newOutput))
+                        {
+                            cycles[newOutput] = numPushes;
+                            if (cycles.Count == toDecider.Length)
+                            {
+                                return cycles;
+                            }
+                        }
+                        toProcess.Enqueue((newOutput, outputName, outputSignal));
+                    }
+                }
+            }
+        }
+    }
+}
+
+long Gcd(long a, long b) 
+{
+    if (b == 0)
+    {
+        return a;
+    }
+
+    return Gcd(b, a % b); 
+} 
+  
+long Lcm(long a, long b) 
+{ 
+    return (a / Gcd(a, b)) * b; 
+} 
+
 string puzzleInput = await Util.GetPuzzleInput(20);
 
 var modules = puzzleInput.Split(Environment.NewLine, StringSplitOptions.RemoveEmptyEntries).Select(Module.FromLine).ToDictionary(m => m.Name, m => m);
 Console.WriteLine(string.Join(Environment.NewLine, modules.Values));
 Console.WriteLine(Execute(1000, modules));
+var cycles = CyclesFor("rx", modules);
+long stepsNeededGhost = cycles.Values.Aggregate(1L, Lcm);
+Console.WriteLine(stepsNeededGhost);
