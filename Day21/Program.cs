@@ -36,7 +36,7 @@ int StepsReachable(bool[][] map, Position start, int steps)
         }
     }
 
-    return visited.Where(v => (Math.Abs(v.X - start.X) + Math.Abs(v.Y - start.Y)) % 2 == steps % 2).Count();
+    return visited.Count(v => (Math.Abs(v.X - start.X) + Math.Abs(v.Y - start.Y)) % 2 == steps % 2);
 }
 
 string puzzleInput = await Util.GetPuzzleInput(21);
