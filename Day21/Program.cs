@@ -41,7 +41,7 @@ int StepsReachable(bool[][] map, Position start, int steps)
 
 string puzzleInput = await Util.GetPuzzleInput(21);
 
-var split = puzzleInput.Split(Environment.NewLine, StringSplitOptions.TrimEntries);
+var split = puzzleInput.Split(Environment.NewLine, StringSplitOptions.RemoveEmptyEntries);
 bool[][] map = split.Select(l => l.ToCharArray().Select(c => c is '.' or 'S').ToArray()).ToArray();
 (string row, int rowIndex) startRow = split.Select((Row, RowIndex) => (row: Row, rowIndex: RowIndex)).Where(r => r.row.Contains("S")).Single();
 Position start = new Position(startRow.row.IndexOf("S"), startRow.rowIndex);
