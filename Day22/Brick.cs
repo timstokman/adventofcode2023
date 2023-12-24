@@ -13,11 +13,11 @@ public record Brick(int Index, Position Start, Position End)
     public Brick OneDown
         => new(Index, Start with { Z = Start.Z - 1 }, End with { Z = End.Z - 1 });
 
-    public Brick OneUp
-        => new(Index, Start with { Z = Start.Z + 1 }, End with { Z = End.Z + 1 });
-
-    public int Layer
+    public int MinLayer
         => Math.Min(Start.Z, End.Z);
+
+    public int MaxLayer
+        => Math.Max(Start.Z, End.Z);
 
     public Dimension Orientation
     {
