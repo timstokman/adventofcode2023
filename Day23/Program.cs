@@ -3,6 +3,8 @@ using Position = (int X, int Y);
 
 string puzzleInput = await Util.GetPuzzleInput(23);
 
+char[] slopes = new[] { '^', 'v', '>', '<' };
+
 IEnumerable<Position> Surrounding(Position position)
 {
     yield return position with { X = position.X + 1 };
@@ -28,21 +30,24 @@ Position InDirection(Position position, char slope)
     };
 }
 
-int LongestPathDfs(Dictionary<(Position Start, Position End), int> edges, List<Position> visited, Position end)
+(int Steps, List<Position>? Visited) LongestPathDfs(Dictionary<Position, Dictionary<Position, int>> edges, List<Position> visited, Position end)
 {
     var current = visited.Last();
     if (current == end)
     {
-        return 0;
+        return (0, visited);
     }
 
-    var possibleEdges = edges.Where(e => e.Key.Start == current && !visited.Contains(e.Key.End));
-    return possibleEdges.Max(e => e.Value + LongestPathDfs(edges, visited.Concat(new[] { e.Key.End }).ToList(), end));
+    IEnumerable<KeyValuePair<Position, int>> possibleEdges = edges[current].Where(e => !visited.Contains(e.Key));
+    return possibleEdges.Select(e =>
+    {
+        var longest = LongestPathDfs(edges, visited.Concat(new[] { e.Key }).ToList(), end);
+        return (Steps: longest.Steps + e.Value, visited: longest.Visited);
+    }).Concat(new[] { (Steps: int.MinValue, Visited: (List<Position>?)null) }).MaxBy(v => v.Steps);
 }
 
 (int Steps, Position? FoundNode) FollowPath(Position previous, Position next, List<Position> nodes, char[][] map, int height, int width)
 {
-    char[] slopes = new[] { '^', 'v', '>', '<' };
     int steps = 1;
     while (!nodes.Contains(next))
     {
@@ -96,7 +101,7 @@ int LongestPath(char[][] map)
         }
     }
 
-    Dictionary<(Position From, Position To), int> edges = new();
+    Dictionary<Position, Dictionary<Position, int>> edges = new();
     foreach (Position node in nodes)
     {
         var possibleDirections = SurroundingWithBounds(node, height, width).Where(s => map[s.Y][s.X] != '#');
@@ -105,13 +110,42 @@ int LongestPath(char[][] map)
             (int steps, Position? foundNode) = FollowPath(node, d, nodes, map, height, width);
             if (foundNode != null)
             {
-                edges[(node, foundNode.Value)] = steps;
+                if (edges.TryGetValue(node, out Dictionary<Position, int> edge))
+                {
+                    edge[foundNode.Value] = steps;
+                }
+                else
+                {
+                    edges[node] = new Dictionary<Position, int>() { { foundNode.Value, steps } };
+                }
             }
         }
     }
 
-    return LongestPathDfs(edges, new List<Position>() { nodes[0] }, nodes[1]);
+    var longest = LongestPathDfs(edges, new List<Position>() { nodes[0] }, nodes[1]);
+
+    for (int y = 0; y < height; y++)
+    {
+        for (int x = 0; x < width; x++)
+        {
+            int visitNum = longest.Visited.IndexOf(new Position(x, y));
+            if (visitNum >= 0)
+            {
+                Console.Write(visitNum.ToString());
+            }
+            else
+            {
+                Console.Write(map[y][x]);
+            }
+        }
+
+        Console.WriteLine();
+    }
+
+    return longest.Steps;
 }
 
 char[][] map = puzzleInput.Split(Environment.NewLine, StringSplitOptions.RemoveEmptyEntries).Select(l => l.ToCharArray()).ToArray();
+char[][] mapWithoutSlopes = puzzleInput.Split(Environment.NewLine, StringSplitOptions.RemoveEmptyEntries).Select(l => l.Replace('^', '.').Replace('v', '.').Replace('>', '.').Replace('<', '.').ToCharArray()).ToArray();
 Console.WriteLine(LongestPath(map));
+Console.WriteLine(LongestPath(mapWithoutSlopes));
