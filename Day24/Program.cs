@@ -1,5 +1,6 @@
 ﻿using System.Text.RegularExpressions;
 using Common;
+using Microsoft.Z3;
 
 string puzzleInput = await Util.GetPuzzleInput(24);
 
@@ -37,8 +38,38 @@ int NumCollisions(long[][] hailPaths, long minAxis, long maxAxis)
     return count;
 }
 
+long SumPerfect(long[][] hailPaths)
+{
+    using Context c = new Context();
+    using RealExpr pointX = c.MkRealConst("x");
+    using RealExpr pointY = c.MkRealConst("y");
+    using RealExpr pointZ = c.MkRealConst("z");
+    using RealExpr velocX = c.MkRealConst("dx");
+    using RealExpr velocY = c.MkRealConst("dy");
+    using RealExpr velocZ = c.MkRealConst("dz");
+
+    using Solver s = c.MkSolver();
+    for (int i = 0; i < hailPaths.Length; i++)
+    {
+        var hail = hailPaths[i];
+        var hailT = c.MkRealConst($"t{i}");
+        s.Add(c.MkEq(c.MkAdd(pointX, c.MkMul(hailT, velocX)), c.MkAdd(c.MkReal(hail[0]), c.MkMul(hailT, c.MkReal(hail[3])))));
+        s.Add(c.MkEq(c.MkAdd(pointY, c.MkMul(hailT, velocY)), c.MkAdd(c.MkReal(hail[1]), c.MkMul(hailT, c.MkReal(hail[4])))));
+        s.Add(c.MkEq(c.MkAdd(pointZ, c.MkMul(hailT, velocZ)), c.MkAdd(c.MkReal(hail[2]), c.MkMul(hailT, c.MkReal(hail[5])))));
+        s.Add(c.MkGe(hailT, c.MkReal(0)));
+    }
+
+    if (s.Check() == Status.SATISFIABLE)
+    {
+        return new[] { pointX, pointY, pointZ }.Sum(p => long.Parse(s.Model.Eval(p, false).ToString()));
+    }
+    
+    return -1;
+}
+
 Regex split = new Regex(@"\@|,");
 long[][] hailPaths = puzzleInput.Split(Environment.NewLine, StringSplitOptions.RemoveEmptyEntries).Select(l => split.Split(l.Replace(" ", "")).Select(long.Parse).ToArray()).ToArray();
 long minAxis = 200000000000000L;
 long maxAxis = 400000000000000L;
 Console.WriteLine(NumCollisions(hailPaths, minAxis, maxAxis));
+Console.WriteLine(SumPerfect(hailPaths));
