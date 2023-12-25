@@ -51,8 +51,8 @@ long SumPerfect(long[][] hailPaths)
     using Solver s = c.MkSolver();
     for (int i = 0; i < hailPaths.Length; i++)
     {
-        var hail = hailPaths[i];
-        var hailT = c.MkRealConst($"t{i}");
+        long[] hail = hailPaths[i];
+        RealExpr hailT = c.MkRealConst($"t{i}");
         s.Add(c.MkEq(c.MkAdd(pointX, c.MkMul(hailT, velocX)), c.MkAdd(c.MkReal(hail[0]), c.MkMul(hailT, c.MkReal(hail[3])))));
         s.Add(c.MkEq(c.MkAdd(pointY, c.MkMul(hailT, velocY)), c.MkAdd(c.MkReal(hail[1]), c.MkMul(hailT, c.MkReal(hail[4])))));
         s.Add(c.MkEq(c.MkAdd(pointZ, c.MkMul(hailT, velocZ)), c.MkAdd(c.MkReal(hail[2]), c.MkMul(hailT, c.MkReal(hail[5])))));
@@ -61,7 +61,7 @@ long SumPerfect(long[][] hailPaths)
 
     if (s.Check() == Status.SATISFIABLE)
     {
-        return new[] { pointX, pointY, pointZ }.Sum(p => long.Parse(s.Model.Eval(p, false).ToString()));
+        return new[] { pointX, pointY, pointZ }.Sum(p => long.Parse(s.Model.Eval(p).ToString()));
     }
     
     return -1;
