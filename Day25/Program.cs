@@ -26,56 +26,51 @@ bool HasPath(string[] nodes, Dictionary<string, HashSet<string>> edges, Dictiona
     return visited.Contains(end);
 }
 
-int EdmondsKarp(string[] nodes, Dictionary<string, HashSet<string>> edges, string start, string end)
+int EdmondsKarp(string[] nodes, Dictionary<string, HashSet<string>> edges)
 {
-    Dictionary<string, Dictionary<string, int>> capacity = edges.ToDictionary(e => e.Key, e => e.Value.ToDictionary(v => v, v => 1));
-    Dictionary<string, string> parent = new();
-    int maxFlow = 0;
-
-    while (HasPath(nodes, edges, capacity, start, end, parent))
+    Random r = new();
+    while (true)
     {
-        int pathFlow = int.MaxValue;
-        string s = end;
-        while (s != start)
+        string start = nodes[r.Next(nodes.Length)];
+        string end = nodes[r.Next(nodes.Length)];
+        Dictionary<string, Dictionary<string, int>> capacity = edges.ToDictionary(e => e.Key, e => e.Value.ToDictionary(v => v, v => 1));
+        Dictionary<string, string> parent = new();
+        int maxFlow = 0;
+
+        while (HasPath(nodes, edges, capacity, start, end, parent))
         {
-            string previous = parent[s];
-            pathFlow = Math.Min(pathFlow, capacity[previous][s]);
-            s = previous;
+            int pathFlow = int.MaxValue;
+            string s = end;
+            while (s != start)
+            {
+                string previous = parent[s];
+                pathFlow = Math.Min(pathFlow, capacity[previous][s]);
+                s = previous;
+            }
+
+            maxFlow += pathFlow;
+
+            string v = end;
+            while (v != start)
+            {
+                var previous = parent[v];
+                capacity[previous][v] -= pathFlow;
+                capacity[v][previous] += pathFlow;
+                v = previous;
+            }
         }
 
-        maxFlow += pathFlow;
-
-        string v = end;
-        while (v != start)
+        if (maxFlow != 3)
         {
-            var previous = parent[v];
-            capacity[previous][v] -= pathFlow;
-            capacity[v][previous] += pathFlow;
-            v = previous;
+            continue;
         }
-    }
 
-    if (maxFlow != 3)
-    {
-        throw new ArgumentOutOfRangeException();
-    }
+        int firstGroupSize = nodes.Count(n => HasPath(nodes, edges, capacity, start, n, parent));
+        int secondGroupSize = nodes.Length - firstGroupSize;
 
-    int firstGroupSize = nodes.Count(n => HasPath(nodes, edges, capacity, start, n, parent));
-    int secondGroupSize = nodes.Length - firstGroupSize;
-
-    return firstGroupSize * secondGroupSize;
-}
-
-/*
-void GlobalMinCut(string[] nodes, Dictionary<string, HashSet<string>> adjecent)
-{
-    Dictionary<string, Dictionary<string, int>> co = new();
-    foreach (var node in nodes)
-    {
-        co[node] = new 
+        return firstGroupSize * secondGroupSize;
     }
 }
-*/
 
 string puzzleInput = await Util.GetPuzzleInput(25);
 
@@ -87,4 +82,4 @@ string puzzleInput = await Util.GetPuzzleInput(25);
 string[] nodes = edges.SelectMany(e => new[] { e.Left, e.Right }).Distinct().ToArray();
 Dictionary<string, HashSet<string>> dictEdges = nodes.ToDictionary(n => n, n => new HashSet<string>(edges.Where(e => e.Left == n).Select(e => e.Right).Concat(edges.Where(e => e.Right == n).Select(e => e.Left))));
 
-Console.WriteLine(EdmondsKarp(nodes, dictEdges, "fdb", "mnl"));
+Console.WriteLine(EdmondsKarp(nodes, dictEdges));
