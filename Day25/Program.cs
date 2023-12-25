@@ -4,13 +4,13 @@ bool HasPath(string[] nodes, Dictionary<string, HashSet<string>> edges, Dictiona
 {
     HashSet<string> visited = new();
 
-    var queue = new Queue<string>();
+    Queue<string> queue = new();
     queue.Enqueue(start);
     visited.Add(start);
 
     while (queue.Count > 0)
     {
-        var u = queue.Dequeue();
+        string u = queue.Dequeue();
 
         foreach (string e in edges[u])
         {
@@ -26,7 +26,7 @@ bool HasPath(string[] nodes, Dictionary<string, HashSet<string>> edges, Dictiona
     return visited.Contains(end);
 }
 
-int EdmondsKarp(string[] nodes, Dictionary<string, HashSet<string>> edges)
+int FindGroupsWithEdmondsKarp(string[] nodes, Dictionary<string, HashSet<string>> edges)
 {
     Random r = new();
     while (true)
@@ -53,7 +53,7 @@ int EdmondsKarp(string[] nodes, Dictionary<string, HashSet<string>> edges)
             string v = end;
             while (v != start)
             {
-                var previous = parent[v];
+                string previous = parent[v];
                 capacity[previous][v] -= pathFlow;
                 capacity[v][previous] += pathFlow;
                 v = previous;
@@ -76,10 +76,10 @@ string puzzleInput = await Util.GetPuzzleInput(25);
 
 (string Left, string Right)[] edges = puzzleInput.Split(Environment.NewLine, StringSplitOptions.RemoveEmptyEntries).SelectMany(l =>
 {
-    var split = l.Split(": ");
+    string[] split = l.Split(": ");
     return split[1].Split(" ").Select(s => (Left: split[0], Right: s));
 }).ToArray();
 string[] nodes = edges.SelectMany(e => new[] { e.Left, e.Right }).Distinct().ToArray();
 Dictionary<string, HashSet<string>> dictEdges = nodes.ToDictionary(n => n, n => new HashSet<string>(edges.Where(e => e.Left == n).Select(e => e.Right).Concat(edges.Where(e => e.Right == n).Select(e => e.Left))));
 
-Console.WriteLine(EdmondsKarp(nodes, dictEdges));
+Console.WriteLine(FindGroupsWithEdmondsKarp(nodes, dictEdges));
