@@ -1,6 +1,6 @@
 ﻿using Common;
 
-bool HasPath(string[] nodes, Dictionary<string, HashSet<string>> edges, Dictionary<string, Dictionary<string, int>> capacity, string start, string end, Dictionary<string, string> parent)
+bool HasPath(Dictionary<string, HashSet<string>> edges, Dictionary<string, Dictionary<string, int>> capacity, string start, string end, Dictionary<string, string> parent)
 {
     HashSet<string> visited = new();
 
@@ -37,7 +37,7 @@ int FindGroupsWithEdmondsKarp(string[] nodes, Dictionary<string, HashSet<string>
         Dictionary<string, string> parent = new();
         int maxFlow = 0;
 
-        while (HasPath(nodes, edges, capacity, start, end, parent))
+        while (HasPath(edges, capacity, start, end, parent))
         {
             int pathFlow = int.MaxValue;
             string s = end;
@@ -65,7 +65,7 @@ int FindGroupsWithEdmondsKarp(string[] nodes, Dictionary<string, HashSet<string>
             continue;
         }
 
-        int firstGroupSize = nodes.Count(n => HasPath(nodes, edges, capacity, start, n, parent));
+        int firstGroupSize = nodes.Count(n => HasPath(edges, capacity, start, n, parent));
         int secondGroupSize = nodes.Length - firstGroupSize;
 
         return firstGroupSize * secondGroupSize;
