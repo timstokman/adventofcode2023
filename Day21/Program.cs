@@ -1,7 +1,6 @@
 ﻿using Common;
 using Day21;
 using MathNet.Numerics;
-using MathNet.Numerics.LinearRegression;
 
 int StepsReachable(bool[][] map, Position start, int steps)
 {
@@ -44,7 +43,6 @@ IEnumerable<(int Steps, int Reachable)> StepsReachableInfinite(bool[][] map, Pos
 
     for (int step = 1; step < maxSteps; step++)
     {
-        Console.WriteLine(step);
         Queue<(int Steps, PositionGrid Position)> outsideReach = new();
         while (toVisit.Count > 0)
         {
@@ -98,7 +96,7 @@ Position start = new Position(startRow.row.IndexOf("S"), startRow.rowIndex);
 
 Console.WriteLine(StepsReachable(map, start, 64));
 int goal = 26501365;
-var interpolationPoints = StepsReachableInfinite(map, start.Grid, 5000, goal).ToArray();
+(int Steps, int Reachable)[] interpolationPoints = StepsReachableInfinite(map, start.Grid, 1000, goal).ToArray();
 long[] fit = Fit.Polynomial(Enumerable.Range(1, interpolationPoints.Length).Select(i => (double)i).ToArray(), interpolationPoints.Select(i => (double)i.Reachable).ToArray(), 2).Select(f => (long)Math.Round(f)).ToArray();
 int toInterpolate = 1 + (goal - interpolationPoints[0].Steps) / (interpolationPoints[1].Steps - interpolationPoints[0].Steps);
 Console.WriteLine(Eval(fit, toInterpolate));
