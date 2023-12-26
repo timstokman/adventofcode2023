@@ -1,5 +1,5 @@
 ﻿using Common;
-using Position = (int X, int Y);
+using Day21;
 
 int StepsReachable(bool[][] map, Position start, int steps)
 {
@@ -19,17 +19,10 @@ int StepsReachable(bool[][] map, Position start, int steps)
         }
 
         visited.Add(position);
-        var surrounding = new[]
-        {
-            new Position(position.X + 1, position.Y),
-            new Position(position.X - 1, position.Y),
-            new Position(position.X, position.Y + 1),
-            new Position(position.X, position.Y - 1),
-        };
 
-        foreach (var surround in surrounding)
+        foreach (var surround in position.Surrounding(width, height))
         {
-            if (surround.Y >= 0 && surround.Y < height && surround.X >= 0 && surround.X < width && map[surround.Y][surround.X] && !visited.Contains(surround))
+            if (!visited.Contains(surround) && map[surround.Y][surround.X])
             {
                 toVisit.Enqueue((positionSteps + 1, surround));
             }
@@ -39,20 +32,20 @@ int StepsReachable(bool[][] map, Position start, int steps)
     return visited.Count(v => (Math.Abs(v.X - start.X) + Math.Abs(v.Y - start.Y)) % 2 == steps % 2);
 }
 
-void StepsReachableInfinite(bool[][] map, Position start)
+IEnumerable<int> StepsReachableInfinite(bool[][] map, PositionGrid start, int maxSteps)
 {
-    Queue<(int Steps, Position Position)> toVisit = new();
+    Queue<(int Steps, PositionGrid Position)> toVisit = new();
     toVisit.Enqueue((0, start));
-    HashSet<Position> visited = new();
+    HashSet<PositionGrid> visited = new();
     int height = map.Length;
     int width = map[0].Length;
 
-    for (int steps = 1; steps < int.MaxValue; steps++)
+    for (int steps = 1; steps < maxSteps; steps++)
     {
-        Queue<(int Steps, Position Position)> outsideReach = new();
+        Queue<(int Steps, PositionGrid Position)> outsideReach = new();
         while (toVisit.Count > 0)
         {
-            (int positionSteps, Position position) = toVisit.Dequeue();
+            (int positionSteps, PositionGrid position) = toVisit.Dequeue();
 
             if (visited.Contains(position))
             {
@@ -65,33 +58,33 @@ void StepsReachableInfinite(bool[][] map, Position start)
             }
 
             visited.Add(position);
-            var surrounding = new[]
-            {
-                new Position(position.X + 1, position.Y),
-                new Position(position.X - 1, position.Y),
-                new Position(position.X, position.Y + 1),
-                new Position(position.X, position.Y - 1),
-            };
 
-            foreach (var surround in surrounding)
+            foreach (var surround in position.Surrounding(width, height))
             {
-                if (surround.Y >= 0 && surround.Y < height && surround.X >= 0 && surround.X < width && map[surround.Y][surround.X] && !visited.Contains(surround))
+                if (!visited.Contains(surround) && map[surround.Y][surround.X])
                 {
                     toVisit.Enqueue((positionSteps + 1, surround));
                 }
             }
         }
 
-        return; // visited.Count(v => (Math.Abs(v.X - start.X) + Math.Abs(v.Y - start.Y)) % 2 == steps % 2);
+        int oddEven = steps % 2;
+        yield return visited.Count(v => (Math.Abs(v.X + width * v.XGrid - start.X) + Math.Abs(v.Y + height * v.YGrid - start.Y)) % 2 == oddEven);
+        toVisit = outsideReach;
     }
 }
 
-bool IsReachable(int x, int y, int steps, int middle)
-{
-    return false;
-}
-
-string puzzleInput = await Util.GetPuzzleInput(21);
+string puzzleInput = @"...........
+.....###.#.
+.###.##..#.
+..#.#...#..
+....#.#....
+.##..S####.
+.##..#...#.
+.......##..
+.##.#.####.
+.##..##.##.
+...........";
 
 var split = puzzleInput.Split(Environment.NewLine, StringSplitOptions.RemoveEmptyEntries);
 bool[][] map = split.Select(l => l.ToCharArray().Select(c => c is '.' or 'S').ToArray()).ToArray();
@@ -100,5 +93,4 @@ Position start = new Position(startRow.row.IndexOf("S"), startRow.rowIndex);
 
 Console.WriteLine(StepsReachable(map, start, 64));
 int numSteps = 26501365;
-int nodesReachableParity = StepsReachable(map, start, map.Length);
-int nodesReachableNonParity = StepsReachable(map, start, map.Length + 1);
+var interpolationPoints = StepsReachableInfinite(map, start.Grid, 1000).ToArray();
